@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Mining Sim | Mine. Upgrade. Get Rich.</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --orange: #ff7a33;
+            --gold: #ffc15e;
+            --dark: #080706;
+            --dark2: #110d0a;
+            --panel: #17110d;
+            --text: #fff7ed;
+            --muted: #a99d93;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background:
+                radial-gradient(circle at 50% 35%, rgba(255, 100, 25, 0.18), transparent 35%),
+                radial-gradient(circle at 10% 80%, rgba(255, 70, 20, 0.10), transparent 30%),
+                #080706;
+            color: var(--text);
+            font-family: "IBM Plex Sans", sans-serif;
+            overflow-x: hidden;
+        }
+
+        /* =========================
+           BACKGROUND
+        ========================= */
+
+        body::before {
+            content: "";
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            opacity: .25;
+            background-image:
+                radial-gradient(circle, #ff9b42 1px, transparent 1px),
+                radial-gradient(circle, #ff6a25 1px, transparent 1px);
+            background-size: 90px 90px, 140px 140px;
+            background-position: 0 0, 40px 70px;
+            animation: drift 15s linear infinite;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translateY(0);
+            }
+            to {
+                transform: translateY(-90px);
+            }
+        }
+
+        /* =========================
+           NAVBAR
+        ========================= */
+
+        nav {
+            width: 100%;
+            height: 82px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 6%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 10;
+            border-bottom: 1px solid rgba(255, 130, 50, .12);
+            background: linear-gradient(
+                to bottom,
+                rgba(0,0,0,.65),
+                transparent
+            );
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: white;
+        }
+
+        .logo-icon {
+            font-size: 34px;
+            filter: drop-shadow(0 0 8px rgba(255, 120, 30, .5));
+        }
+
+        .logo-text {
+            font-family: "Big Shoulders Display", sans-serif;
+            font-weight: 800;
+            font-size: 28px;
+            line-height: .8;
+            letter-spacing: 1px;
+        }
+
+        .logo-text span {
+            display: block;
+            color: var(--orange);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 38px;
+        }
+
+        .nav-links a {
+            color: #ddd3cc;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            transition: .25s;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .community {
+            border: 1px solid var(--orange);
+            padding: 12px 18px;
+            border-radius: 7px;
+            color: white;
+            text-decoration: none;
+            font-size: 13px;
+            font-weight: 700;
+            transition: .25s;
+            box-shadow: 0 0 20px rgba(255, 100, 30, .08);
+        }
+
+        .community:hover {
+            background: var(--orange);
+            color: #160b05;
+            box-shadow: 0 0 25px rgba(255, 100, 30, .35);
+        }
+
+        /* =========================
+           HERO
+        ========================= */
+
+        .hero {
+            min-height: 850px;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 20px 80px;
+            overflow: hidden;
+        }
+
+        /* Cave background */
+
+        .cave {
+            position: absolute;
+            inset: 0;
+            z-index: -2;
+            background:
+                radial-gradient(
+                    ellipse at center 60%,
+                    rgba(255, 100, 25, .25),
+                    transparent 42%
+                ),
+                radial-gradient(
+                    ellipse at 50% 100%,
+                    rgba(255, 70, 15, .28),
+                    transparent 45%
+                ),
+                linear-gradient(
+                    180deg,
+                    #050506 0%,
+                    #100b08 48%,
+                    #1b0d07 100%
+                );
+        }
+
+        .cave::before {
+            content: "";
+            position: absolute;
+            left: -5%;
+            right: -5%;
+            bottom: -90px;
+            height: 330px;
+            background:
+                linear-gradient(135deg, #0b0908 25%, transparent 25%) 0 0 / 90px 90px,
+                linear-gradient(315deg, #0b0908 25%, transparent 25%) 0 0 / 110px 110px;
+            transform: perspective(400px) rotateX(25deg);
+            opacity: .9;
+        }
+
+        .glow {
+            position: absolute;
+            width: 500px;
+            height: 500px;
+            border-radius: 50%;
+            background: rgba(255, 86, 15, .13);
+            filter: blur(100px);
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -35%);
+        }
+
+        /* Rocks */
+
+        .rock {
+            position: absolute;
+            background: #17110e;
+            border: 2px solid #302019;
+            box-shadow:
+                inset 0 0 35px rgba(0,0,0,.8),
+                0 20px 50px rgba(0,0,0,.7);
+        }
+
+        .rock-left {
+            width: 310px;
+            height: 220px;
+            left: -70px;
+            bottom: 80px;
+            transform: rotate(-14deg);
+            border-radius: 45% 55% 20% 40%;
+        }
+
+        .rock-right {
+            width: 330px;
+            height: 250px;
+            right: -80px;
+            bottom: 70px;
+            transform: rotate(12deg);
+            border-radius: 55% 40% 45% 20%;
+        }
+
+        /* Crystals */
+
+        .crystal {
+            position: absolute;
+            width: 40px;
+            height: 75px;
+            background: linear-gradient(
+                135deg,
+                #ffdc75,
+                #ff741f 60%,
+                #a72e08
+            );
+            clip-path: polygon(
+                50% 0,
+                100% 25%,
+                78% 100%,
+                20% 90%,
+                0 35%
+            );
+            filter:
+                drop-shadow(0 0 12px rgba(255, 100, 20, .8));
+            animation: crystalPulse 2.5s ease-in-out infinite alternate;
+        }
+
+        .c1 {
+            left: 13%;
+            bottom: 190px;
+            transform: rotate(-12deg);
+        }
+
+        .c2 {
+            right: 14%;
+            bottom: 230px;
+            transform: rotate(15deg) scale(1.3);
+            animation-delay: .8s;
+        }
+
+        .c3 {
+            left: 23%;
+            bottom: 110px;
+            transform: rotate(25deg) scale(.7);
+            animation-delay: 1.4s;
+        }
+
+        @keyframes crystalPulse {
+            from {
+                filter: drop-shadow(0 0 7px rgba(255,100,20,.5));
+            }
+            to {
+                filter: drop-shadow(0 0 25px rgba(255,130,30,1));
+            }
+        }
+
+        /* Floating embers */
+
+        .ember {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            background: #ff9b42;
+            box-shadow: 0 0 12px #ff6a20;
+            animation: floatUp linear infinite;
+        }
+
+        .e1 { left: 18%; bottom: 20%; animation-duration: 6s; }
+        .e2 { left: 32%; bottom: 10%; animation-duration: 8s; animation-delay: 1s; }
+        .e3 { left: 64%; bottom: 15%; animation-duration: 7s; animation-delay: 2s; }
+        .e4 { left: 78%; bottom: 22%; animation-duration: 9s; animation-delay: 3s; }
+        .e5 { left: 47%; bottom: 5%; animation-duration: 6s; animation-delay: 1.5s; }
+        .e6 { left: 87%; bottom: 12%; animation-duration: 7s; animation-delay: .5s; }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(0) scale(.5);
+                opacity: 0;
+            }
+            20% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-350px) translateX(50px) scale(1.2);
+                opacity: 0;
+            }
+        }
+
+        /* Hero content */
+
+        .hero-content {
+            max-width: 850px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .mini-title {
+            color: var(--orange);
+            text-transform: uppercase;
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 5px;
+            margin-bottom: 18px;
+        }
+
+        h1 {
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: clamp(80px, 12vw, 170px);
+            line-height: .78;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: -3px;
+            color: #f5eee7;
+            text-shadow:
+                0 5px 0 #30251f,
+                0 12px 25px rgba(0,0,0,.8);
+        }
+
+        h1 span {
+            display: block;
+            color: #ff7a20;
+            text-shadow:
+                0 4px 0 #742708,
+                0 0 35px rgba(255, 90, 20, .35);
+        }
+
+        .tagline {
+            margin-top: 30px;
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 4px;
+        }
+
+        .description {
+            max-width: 600px;
+            margin: 16px auto 30px;
+            color: #c9bdb4;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        /* Start button */
+
+        .start-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            min-width: 330px;
+            padding: 20px 42px;
+            border-radius: 9px;
+            text-decoration: none;
+            color: #241006;
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: 29px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            background:
+                linear-gradient(
+                    180deg,
+                    #ffd05f,
+                    #ff8a22
+                );
+            border: 2px solid #ffbd4d;
+            box-shadow:
+                0 0 20px rgba(255, 110, 20, .35),
+                0 12px 35px rgba(0,0,0,.5),
+                inset 0 2px 0 rgba(255,255,255,.45);
+            transition: .25s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .start-button::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 60%;
+            height: 100%;
+            background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255,255,255,.45),
+                transparent
+            );
+            transform: skewX(-20deg);
+            animation: shine 3s infinite;
+        }
+
+        @keyframes shine {
+            0% { left: -100%; }
+            45%, 100% { left: 150%; }
+        }
+
+        .start-button:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow:
+                0 0 35px rgba(255, 110, 20, .65),
+                0 18px 40px rgba(0,0,0,.6);
+        }
+
+        .pickaxe {
+            font-size: 27px;
+        }
+
+        .click-text {
+            margin-top: 12px;
+            font-size: 12px;
+            color: #a99d93;
+        }
+
+        /* =========================
+           STATS BAR
+        ========================= */
+
+        .stats {
+            width: min(1000px, 90%);
+            margin: -50px auto 0;
+            position: relative;
+            z-index: 4;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            background: rgba(17, 13, 10, .94);
+            border: 1px solid #38271e;
+            border-radius: 12px;
+            box-shadow: 0 15px 50px rgba(0,0,0,.6);
+            overflow: hidden;
+        }
+
+        .stat {
+            padding: 25px 15px;
+            text-align: center;
+            border-right: 1px solid #38271e;
+        }
+
+        .stat:last-child {
+            border-right: none;
+        }
+
+        .stat-icon {
+            font-size: 28px;
+            margin-bottom: 7px;
+        }
+
+        .stat-number {
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: 25px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* =========================
+           FEATURES
+        ========================= */
+
+        section {
+            padding: 110px 7%;
+            position: relative;
+        }
+
+        .section-title {
+            text-align: center;
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: 52px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .section-subtitle {
+            text-align: center;
+            color: var(--muted);
+            max-width: 550px;
+            margin: 0 auto 55px;
+        }
+
+        .features {
+            max-width: 1100px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+        }
+
+        .feature {
+            padding: 30px 22px;
+            background:
+                linear-gradient(
+                    145deg,
+                    rgba(38,26,19,.95),
+                    rgba(17,12,9,.95)
+                );
+            border: 1px solid #33231b;
+            border-radius: 10px;
+            transition: .3s;
+        }
+
+        .feature:hover {
+            transform: translateY(-8px);
+            border-color: var(--orange);
+            box-shadow: 0 15px 35px rgba(255,90,20,.12);
+        }
+
+        .feature-icon {
+            font-size: 38px;
+            margin-bottom: 18px;
+        }
+
+        .feature h3 {
+            font-family: "Big Shoulders Display", sans-serif;
+            text-transform: uppercase;
+            font-size: 25px;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .feature p {
+            color: #9e9188;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        /* =========================
+           HOW TO PLAY
+        ========================= */
+
+        .how {
+            background:
+                linear-gradient(
+                    180deg,
+                    transparent,
+                    rgba(255, 90, 20, .04),
+                    transparent
+                );
+        }
+
+        .steps {
+            max-width: 1000px;
+            margin: auto;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 25px;
+        }
+
+        .step {
+            text-align: center;
+            position: relative;
+            padding: 35px;
+        }
+
+        .step-number {
+            width: 65px;
+            height: 65px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            border-radius: 50%;
+            border: 2px solid var(--orange);
+            color: var(--orange);
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: 30px;
+            font-weight: 800;
+            box-shadow: 0 0 20px rgba(255,100,20,.12);
+        }
+
+        .step h3 {
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: 25px;
+            margin-bottom: 10px;
+        }
+
+        .step p {
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 14px;
+        }
+
+        /* =========================
+           CTA
+        ========================= */
+
+        .cta {
+            text-align: center;
+            padding: 100px 20px 130px;
+        }
+
+        .cta-box {
+            max-width: 900px;
+            margin: auto;
+            padding: 70px 30px;
+            border: 1px solid #4a2b1b;
+            border-radius: 15px;
+            background:
+                radial-gradient(
+                    circle at center,
+                    rgba(255,100,20,.14),
+                    transparent 60%
+                ),
+                #120d09;
+            box-shadow: 0 25px 70px rgba(0,0,0,.5);
+        }
+
+        .cta h2 {
+            font-family: "Big Shoulders Display", sans-serif;
+            font-size: clamp(45px, 7vw, 75px);
+            text-transform: uppercase;
+            line-height: .9;
+            margin-bottom: 18px;
+        }
+
+        .cta h2 span {
+            color: var(--orange);
+        }
+
+        .cta p {
+            color: var(--muted);
+            margin-bottom: 30px;
+        }
+
+        /* =========================
+           FOOTER
+        ========================= */
+
+        footer {
+            border-top: 1px solid #211914;
+            padding: 30px 7%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            color: #73685f;
+            font-size: 13px;
+        }
+
+        footer strong {
+            color: #aaa097;
+        }
+
+        /* =========================
+           MOBILE
+        ========================= */
+
+        @media (max-width: 850px) {
+
+            nav {
+                padding: 0 5%;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .community {
+                display: none;
+            }
+
+            .hero {
+                min-height: 760px;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .stat:nth-child(2) {
+                border-right: none;
+            }
+
+            .features {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .steps {
+                grid-template-columns: 1fr;
+            }
+
+            section {
+                padding: 80px 5%;
+            }
+        }
+
+        @media (max-width: 550px) {
+
+            .logo-text {
+                font-size: 23px;
+            }
+
+            .hero {
+                min-height: 700px;
+            }
+
+            h1 {
+                font-size: 76px;
+            }
+
+            .tagline {
+                font-size: 20px;
+                letter-spacing: 2px;
+            }
+
+            .description {
+                font-size: 14px;
+            }
+
+            .start-button {
+                min-width: 270px;
+                padding: 18px 25px;
+                font-size: 24px;
+            }
+
+            .features {
+                grid-template-columns: 1fr;
+            }
+
+            .stats {
+                width: 92%;
+            }
+
+            .stat {
+                padding: 18px 8px;
+            }
+
+            .stat-number {
+                font-size: 20px;
+            }
+
+            footer {
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- =========================
+         NAVIGATION
+    ========================= -->
+
+    <nav>
+
+        <a href="#" class="logo">
+            <div class="logo-icon">⛏️</div>
+
+            <div class="logo-text">
+                MINING
+                <span>SIM</span>
+            </div>
+        </a>
+
+        <div class="nav-links">
+            <a href="#">Home</a>
+            <a href="#features">Features</a>
+            <a href="#how">How To Play</a>
+        </div>
+
+        <a href="game.html" class="community">
+            ⛏️ PLAY GAME
+        </a>
+
+    </nav>
+
+
+    <!-- =========================
+         HERO
+    ========================= -->
+
+    <main>
+
+        <section class="hero">
+
+            <div class="cave"></div>
+            <div class="glow"></div>
+
+            <div class="rock rock-left"></div>
+            <div class="rock rock-right"></div>
+
+            <div class="crystal c1"></div>
+            <div class="crystal c2"></div>
+            <div class="crystal c3"></div>
+
+            <div class="ember e1"></div>
+            <div class="ember e2"></div>
+            <div class="ember e3"></div>
+            <div class="ember e4"></div>
+            <div class="ember e5"></div>
+            <div class="ember e6"></div>
+
+            <div class="hero-content">
+
+                <div class="mini-title">
+                    Welcome to the mine
+                </div>
+
+                <h1>
+                    MINING
+                    <span>SIM</span>
+                </h1>
+
+                <div class="tagline">
+                    MINE. UPGRADE. GET RICH.
+                </div>
+
+                <p class="description">
+                    Dig deep, collect valuable ores, upgrade your equipment,
+                    and become the ultimate mining tycoon.
+                </p>
+
+                <!-- THIS BUTTON OPENS YOUR GAME -->
+
+                <a href="game.html" class="start-button">
+                    <span class="pickaxe">⛏️</span>
+                    START MINING
+                </a>
+
+                <div class="click-text">
+                    Click to start your mining adventure
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             STATS
+        ========================= -->
+
+        <div class="stats">
+
+            <div class="stat">
+                <div class="stat-icon">⛏️</div>
+                <div class="stat-number">MINE</div>
+                <div class="stat-label">Dig for valuable ore</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-icon">💎</div>
+                <div class="stat-number">COLLECT</div>
+                <div class="stat-label">Find rare resources</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-icon">⬆️</div>
+                <div class="stat-number">UPGRADE</div>
+                <div class="stat-label">Improve your tools</div>
+            </div>
+
+            <div class="stat">
+                <div class="stat-icon">♻️</div>
+                <div class="stat-number">PRESTIGE</div>
+                <div class="stat-label">Become stronger</div>
+            </div>
+
+        </div>
+
+
+        <!-- =========================
+             FEATURES
+        ========================= -->
+
+        <section id="features">
+
+            <h2 class="section-title">
+                Become a Mining Tycoon
+            </h2>
+
+            <p class="section-subtitle">
+                Start with nothing and build your fortune one piece of ore at a time.
+            </p>
+
+            <div class="features">
+
+                <div class="feature">
+                    <div class="feature-icon">⛏️</div>
+                    <h3>Mine</h3>
+                    <p>
+                        Click your way through the mine and collect valuable ore.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">💎</div>
+                    <h3>Discover</h3>
+                    <p>
+                        Find valuable resources and watch your collection grow.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">⬆️</div>
+                    <h3>Upgrade</h3>
+                    <p>
+                        Spend your earnings on upgrades that make mining faster.
+                    </p>
+                </div>
+
+                <div class="feature">
+                    <div class="feature-icon">🔥</div>
+                    <h3>Prestige</h3>
+                    <p>
+                        Reset your progress and come back stronger with prestige.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             HOW TO PLAY
+        ========================= -->
+
+        <section class="how" id="how">
+
+            <h2 class="section-title">
+                How To Play
+            </h2>
+
+            <p class="section-subtitle">
+                Getting started is easy.
+            </p>
+
+            <div class="steps">
+
+                <div class="step">
+
+                    <div class="step-number">
+                        1
+                    </div>
+
+                    <h3>START MINING</h3>
+
+                    <p>
+                        Enter the mine and start breaking ore to build up your resources.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        2
+                    </div>
+
+                    <h3>SELL & UPGRADE</h3>
+
+                    <p>
+                        Sell your ore and use your money to improve your mining abilities.
+                    </p>
+
+                </div>
+
+
+                <div class="step">
+
+                    <div class="step-number">
+                        3
+                    </div>
+
+                    <h3>PRESTIGE</h3>
+
+                    <p>
+                        Push your progress further and become an even more powerful miner.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <!-- =========================
+             FINAL CTA
+        ========================= -->
+
+        <section class="cta">
+
+            <div class="cta-box">
+
+                <h2>
+                    READY TO<br>
+                    <span>GET RICH?</span>
+                </h2>
+
+                <p>
+                    The mine is waiting. Grab your pickaxe and start digging.
+                </p>
+
+                <a href="game.html" class="start-button">
+                    <span class="pickaxe">⛏️</span>
+                    START MINING
+                </a>
+
+            </div>
+
+        </section>
+
+    </main>
+
+
+    <!-- =========================
+         FOOTER
+    ========================= -->
+
+    <footer>
+
+        <div>
+            ⛏️ <strong>MINING SIM</strong>
+        </div>
+
+        <div>
+            © 2026 Mining Sim. All rights reserved.
+        </div>
+
+    </footer>
+
+</body>
+</html>
