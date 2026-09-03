@@ -2,785 +2,543 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Mining Sim</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
-
 <style>
-:root{
-  --bg:#0d0907;
-  --bg2:#17100c;
-  --panel:#21150e;
-  --panel2:#2a1a11;
-  --orange:#ff762f;
-  --orange2:#ff9c4a;
-  --yellow:#ffd166;
-  --red:#ff4d2e;
-  --text:#fff4e7;
-  --muted:#a9917d;
-  --border:rgba(255,125,55,.18);
-  --green:#6ee7a0;
+* {
+  box-sizing: border-box;
 }
 
-*{
-  box-sizing:border-box;
-  margin:0;
-  padding:0;
+:root {
+  --bg: #0b0908;
+  --panel: #17110d;
+  --panel2: #211710;
+  --line: #3a271b;
+  --orange: #ff7a33;
+  --gold: #ffc15e;
+  --text: #fff4e8;
+  --muted: #a99584;
+  --green: #67e69a;
+  --red: #ff6b5f;
 }
 
-body{
-  min-height:100vh;
-  color:var(--text);
-  font-family:"IBM Plex Sans",sans-serif;
+body {
+  margin: 0;
   background:
-    radial-gradient(circle at 50% 10%,rgba(255,95,30,.12),transparent 35%),
-    linear-gradient(#100b08,#080605);
-  overflow-x:hidden;
+    radial-gradient(circle at 50% -10%, #4b2413 0, #160e0a 38%, #090807 75%);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+  min-height: 100vh;
 }
 
-button{
-  font-family:inherit;
+button {
+  font: inherit;
 }
 
-button:disabled{
-  cursor:not-allowed;
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: rgba(11, 9, 8, .94);
+  border-bottom: 1px solid var(--line);
+  padding: 14px 20px;
 }
 
-/* BACKGROUND */
-
-.bg{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  z-index:-1;
-  overflow:hidden;
+.header-inner {
+  max-width: 1150px;
+  margin: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.glow{
-  position:absolute;
-  width:500px;
-  height:500px;
-  border-radius:50%;
-  background:rgba(255,90,20,.06);
-  filter:blur(100px);
-  animation:float 8s ease-in-out infinite alternate;
+.logo {
+  font-size: 25px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--orange);
 }
 
-.glow.a{left:-220px;top:-200px}
-.glow.b{right:-220px;bottom:-200px;animation-delay:2s}
-
-@keyframes float{
-  to{transform:translate(50px,30px)}
+.logo span {
+  color: var(--gold);
 }
 
-.ember{
-  position:absolute;
-  bottom:-20px;
-  width:3px;
-  height:3px;
-  border-radius:50%;
-  background:var(--orange2);
-  animation:rise 6s linear infinite;
-  opacity:0;
+.money {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
-.ember:nth-child(1){left:7%;animation-delay:0s}
-.ember:nth-child(2){left:19%;animation-delay:2s}
-.ember:nth-child(3){left:32%;animation-delay:4s}
-.ember:nth-child(4){left:48%;animation-delay:1s}
-.ember:nth-child(5){left:63%;animation-delay:3s}
-.ember:nth-child(6){left:77%;animation-delay:5s}
-.ember:nth-child(7){left:91%;animation-delay:1.5s}
-
-@keyframes rise{
-  0%{bottom:-20px;opacity:0;transform:translateX(0)}
-  15%{opacity:.8}
-  80%{opacity:.3}
-  100%{bottom:110%;opacity:0;transform:translateX(40px)}
+.money-box {
+  background: #1c130e;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 8px 14px;
+  min-width: 125px;
 }
 
-/* HEADER */
-
-header{
-  height:76px;
-  padding:0 5%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  border-bottom:1px solid rgba(255,255,255,.06);
-  background:rgba(13,9,7,.8);
-  backdrop-filter:blur(12px);
-  position:sticky;
-  top:0;
-  z-index:20;
+.money-label {
+  font-size: 11px;
+  color: var(--muted);
+  text-transform: uppercase;
 }
 
-.logo{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:30px;
-  font-weight:800;
-  letter-spacing:2px;
+.money-value {
+  font-size: 19px;
+  font-weight: 800;
+  margin-top: 2px;
 }
 
-.logo span{
-  color:var(--orange);
+.container {
+  max-width: 1150px;
+  margin: auto;
+  padding: 24px 18px 50px;
 }
 
-.header-money{
-  display:flex;
-  align-items:center;
-  gap:22px;
+.tabs {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 20px;
 }
 
-.money-box{
-  text-align:right;
+.tab {
+  border: 1px solid var(--line);
+  background: #17110d;
+  color: var(--muted);
+  padding: 11px 22px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-.money-label{
-  display:block;
-  color:var(--muted);
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
+.tab.active,
+.tab:hover {
+  color: white;
+  border-color: var(--orange);
+  background: #2b180f;
 }
 
-.money{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:27px;
-  font-weight:800;
-  color:var(--yellow);
+.page {
+  display: none;
 }
 
-/* LAYOUT */
-
-.app{
-  width:min(1150px,94%);
-  margin:30px auto 60px;
+.page.active {
+  display: block;
 }
 
-.tabs{
-  display:flex;
-  gap:8px;
-  margin-bottom:18px;
+.title {
+  font-size: clamp(30px, 6vw, 56px);
+  font-weight: 900;
+  line-height: .95;
+  margin: 10px 0;
+  color: white;
 }
 
-.tab{
-  border:1px solid var(--border);
-  background:#17100c;
-  color:var(--muted);
-  padding:11px 20px;
-  border-radius:9px;
-  font-weight:700;
-  cursor:pointer;
-  transition:.2s;
+.subtitle {
+  color: var(--muted);
+  margin: 0 0 22px;
 }
 
-.tab:hover{
-  color:white;
+.grid {
+  display: grid;
+  grid-template-columns: 1.6fr .8fr;
+  gap: 18px;
 }
 
-.tab.active{
-  background:var(--orange);
-  border-color:var(--orange);
-  color:white;
-  box-shadow:0 0 25px rgba(255,100,35,.18);
+.card {
+  background: linear-gradient(145deg, #1b120d, #110c09);
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 20px;
+  box-shadow: 0 15px 50px rgba(0, 0, 0, .25);
 }
 
-.page{
-  display:none;
+.mine-card {
+  text-align: center;
+  overflow: hidden;
 }
 
-.page.active{
-  display:block;
+.prompt {
+  font-weight: 900;
+  color: var(--gold);
+  letter-spacing: 1px;
+  margin-bottom: 8px;
 }
 
-/* TOP STATS */
-
-.top-stats{
-  display:grid;
-  grid-template-columns:repeat(4,1fr);
-  gap:12px;
-  margin-bottom:16px;
-}
-
-.stat-box{
-  background:linear-gradient(145deg,var(--panel2),var(--panel));
-  border:1px solid var(--border);
-  border-radius:12px;
-  padding:15px;
-}
-
-.stat-label{
-  color:var(--muted);
-  font-size:10px;
-  letter-spacing:1px;
-  text-transform:uppercase;
-}
-
-.stat-value{
-  margin-top:3px;
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:27px;
-  font-weight:800;
-}
-
-.orange{color:var(--orange2)}
-.yellow{color:var(--yellow)}
-.green{color:var(--green)}
-
-/* MINE */
-
-.mine-grid{
-  display:grid;
-  grid-template-columns:1.4fr .8fr;
-  gap:16px;
-}
-
-.panel{
+.rock-button {
+  position: relative;
+  width: min(100%, 520px);
+  height: 390px;
+  margin: 0 auto 14px;
+  border: 2px solid #6a371e;
+  border-radius: 22px;
   background:
-    linear-gradient(145deg,rgba(42,26,17,.97),rgba(23,14,10,.97));
-  border:1px solid var(--border);
-  border-radius:16px;
-  box-shadow:0 20px 50px rgba(0,0,0,.22);
+    radial-gradient(circle, #4a2b1c, #1a100c 68%);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform .08s, border-color .15s;
+  touch-action: manipulation;
+  user-select: none;
 }
 
-.mine-panel{
-  min-height:570px;
-  padding:25px;
-  position:relative;
-  overflow:hidden;
+.rock-button:hover {
+  border-color: var(--orange);
+  box-shadow: 0 0 45px rgba(255, 122, 51, .15);
 }
 
-.mine-title{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
+.rock-button:active {
+  transform: scale(.97);
 }
 
-.mine-title h1{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:38px;
-  letter-spacing:1px;
+.rock-button svg {
+  width: 80%;
+  height: 80%;
+  pointer-events: none;
+  filter: drop-shadow(0 0 18px rgba(255, 122, 51, .3));
 }
 
-.level{
-  color:var(--orange2);
-  font-weight:700;
+.rock-text {
+  position: absolute;
+  bottom: 18px;
+  left: 0;
+  right: 0;
+  font-size: 14px;
+  color: #ffe3c9;
+  font-weight: 900;
+  pointer-events: none;
 }
 
-.xp-bar{
-  height:7px;
-  background:#0c0806;
-  border-radius:99px;
-  margin-top:12px;
-  overflow:hidden;
+.ore-big {
+  font-size: 38px;
+  font-weight: 900;
+  color: var(--gold);
 }
 
-.xp-fill{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,var(--orange),var(--yellow));
-  transition:width .25s;
+.ore-label {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
 }
 
-/* ROCK */
-
-.mine-area{
-  min-height:390px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  position:relative;
-}
-
-.rock-button{
-  width:330px;
-  height:260px;
-  border:0;
-  background:none;
-  cursor:pointer;
-  position:relative;
-  transition:transform .08s;
-  filter:drop-shadow(0 0 30px rgba(255,85,25,.18));
-}
-
-.rock-button:hover{
-  filter:drop-shadow(0 0 45px rgba(255,105,35,.3));
-}
-
-.rock-button:active,
-.rock-button.hit{
-  transform:scale(.94) rotate(-1deg);
-}
-
-.rock{
-  width:100%;
-  height:100%;
-}
-
-.vein{
-  animation:veinPulse 2.4s ease-in-out infinite;
-  transform-origin:center;
-}
-
-@keyframes veinPulse{
-  50%{opacity:.72;filter:drop-shadow(0 0 15px #ff7a30)}
-}
-
-.click-power{
-  position:absolute;
-  bottom:10px;
-  left:50%;
-  transform:translateX(-50%);
-  color:var(--muted);
-  font-size:13px;
-}
-
-.click-power strong{
-  color:white;
-}
-
-/* FLOATING TEXT */
-
-.float{
-  position:absolute;
-  pointer-events:none;
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:26px;
-  font-weight:800;
-  color:var(--yellow);
-  text-shadow:0 0 12px rgba(255,180,60,.4);
-  animation:floatUp .9s ease-out forwards;
-  z-index:5;
-}
-
-.float.crit{
-  color:#fff;
-  font-size:34px;
-  text-shadow:
-    0 0 10px var(--orange),
-    0 0 25px var(--orange);
-}
-
-@keyframes floatUp{
-  from{
-    opacity:1;
-    transform:translate(-50%,0) scale(1);
-  }
-  to{
-    opacity:0;
-    transform:translate(-50%,-90px) scale(1.2);
-  }
-}
-
-/* PARTICLES */
-
-.particle{
-  position:absolute;
-  width:7px;
-  height:7px;
-  border-radius:2px;
-  background:var(--orange);
-  pointer-events:none;
-  animation:particle .65s ease-out forwards;
-}
-
-@keyframes particle{
-  to{
-    transform:translate(var(--x),var(--y)) rotate(180deg);
-    opacity:0;
-  }
-}
-
-/* COMBO */
-
-.combo{
-  text-align:center;
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:22px;
-  font-weight:700;
-  color:var(--muted);
-}
-
-.combo span{
-  color:var(--orange2);
+.sell {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 15px;
+  background: linear-gradient(135deg, #ff7a33, #ff9b48);
+  color: #1b0d07;
+  font-weight: 900;
+  cursor: pointer;
+  font-size: 17px;
+  margin-top: 15px;
+  box-shadow: 0 8px 25px rgba(255, 122, 51, .18);
 }
 
-.sell-row{
-  display:flex;
-  gap:10px;
-  margin-top:18px;
+.sell:hover {
+  filter: brightness(1.08);
 }
 
-.sell-btn{
-  flex:1;
-  border:1px solid rgba(255,193,94,.3);
-  background:linear-gradient(135deg,#8b531f,#5d3517);
-  color:white;
-  border-radius:10px;
-  padding:15px;
-  font-weight:800;
-  cursor:pointer;
-  transition:.2s;
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  border-bottom: 1px solid #2b1d14;
+  padding: 14px 0;
 }
 
-.sell-btn:hover:not(:disabled){
-  transform:translateY(-2px);
-  filter:brightness(1.1);
+.info-row:last-child {
+  border-bottom: 0;
 }
 
-.sell-btn:disabled{
-  opacity:.35;
+.info-row span:first-child {
+  color: var(--muted);
 }
 
-/* RIGHT PANEL */
-
-.side{
-  padding:22px;
-}
-
-.side h2{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:30px;
-  text-transform:uppercase;
-}
-
-.side p{
-  color:var(--muted);
-  font-size:13px;
-  margin-top:3px;
-}
-
-.mini-stat{
-  margin-top:22px;
-  padding:14px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:rgba(0,0,0,.13);
-}
-
-.mini-stat-label{
-  color:var(--muted);
-  font-size:11px;
-  text-transform:uppercase;
-}
-
-.mini-stat-value{
-  margin-top:3px;
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:25px;
-}
-
-/* SHOP */
-
-.shop-grid{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:15px;
-}
-
-.upgrade{
-  background:linear-gradient(145deg,var(--panel2),var(--panel));
-  border:1px solid var(--border);
-  border-radius:14px;
-  padding:20px;
-  transition:.2s;
-}
-
-.upgrade:hover{
-  border-color:rgba(255,118,47,.4);
-  transform:translateY(-2px);
-}
-
-.upgrade-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:15px;
-}
-
-.upgrade h3{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:26px;
-  text-transform:uppercase;
-}
-
-.upgrade-desc{
-  color:var(--muted);
-  font-size:12px;
-  line-height:1.5;
-  margin-top:5px;
-}
-
-.upgrade-level{
-  color:var(--orange2);
-  white-space:nowrap;
-  font-weight:700;
-  font-size:12px;
+.info-row strong {
+  color: white;
 }
 
-.upgrade-bottom{
-  margin-top:18px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
+.combo {
+  margin-top: 18px;
+  padding: 14px;
+  border: 1px solid #5b341e;
+  background: #25160e;
+  border-radius: 12px;
 }
 
-.cost{
-  color:var(--yellow);
-  font-weight:800;
+.combo strong {
+  color: var(--gold);
+  font-size: 22px;
 }
 
-.buy{
-  border:0;
-  background:var(--orange);
-  color:white;
-  border-radius:8px;
-  padding:10px 16px;
-  font-weight:800;
-  cursor:pointer;
+.xp {
+  height: 10px;
+  background: #0b0908;
+  border-radius: 20px;
+  overflow: hidden;
+  margin-top: 8px;
 }
 
-.buy:hover:not(:disabled){
-  filter:brightness(1.12);
+.xp i {
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, var(--orange), var(--gold));
+  transition: width .2s;
 }
 
-.buy:disabled{
-  opacity:.3;
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: end;
+  gap: 15px;
+  margin-bottom: 18px;
 }
 
-/* PRESTIGE */
-
-.prestige{
-  grid-column:1/-1;
-  margin-top:4px;
-  padding:24px;
-  border:1px solid rgba(255,193,94,.25);
-  background:
-    radial-gradient(circle at 80% 30%,rgba(255,170,50,.1),transparent 35%),
-    linear-gradient(145deg,#2a1c10,#17100b);
-  border-radius:15px;
-}
-
-.prestige h2{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:32px;
-  color:var(--yellow);
-}
-
-.prestige p{
-  color:var(--muted);
-  margin:5px 0 18px;
-  font-size:13px;
-  max-width:650px;
+.section-head h2 {
+  margin: 0;
+  font-size: 28px;
 }
 
-.smelt{
-  border:1px solid var(--yellow);
-  background:rgba(255,193,94,.08);
-  color:var(--yellow);
-  padding:12px 20px;
-  border-radius:9px;
-  font-weight:800;
-  cursor:pointer;
+.section-head p {
+  margin: 4px 0 0;
+  color: var(--muted);
 }
 
-.smelt:hover{
-  background:rgba(255,193,94,.15);
+.upgrades {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
 }
-
-/* STATS PAGE */
 
-.stats-grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:15px;
+.upgrade {
+  border: 1px solid var(--line);
+  border-radius: 15px;
+  padding: 18px;
+  background: #18100c;
 }
 
-.big-stat{
-  padding:24px;
-  background:linear-gradient(145deg,var(--panel2),var(--panel));
-  border:1px solid var(--border);
-  border-radius:14px;
+.upgrade h3 {
+  margin: 0 0 6px;
 }
 
-.big-stat .label{
-  color:var(--muted);
-  text-transform:uppercase;
-  letter-spacing:1px;
-  font-size:11px;
+.upgrade p {
+  color: var(--muted);
+  font-size: 14px;
+  min-height: 38px;
+  margin: 0 0 13px;
 }
 
-.big-stat .number{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:42px;
-  font-weight:800;
-  margin-top:4px;
+.level {
+  font-size: 12px;
+  color: var(--gold);
+  margin-bottom: 10px;
 }
 
-.achievements{
-  margin-top:16px;
-  padding:24px;
+.buy {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  border: 1px solid #5a3824;
+  background: #2a1a11;
+  color: #fff;
+  font-weight: 900;
+  cursor: pointer;
 }
 
-.achievements h2{
-  font-family:"Big Shoulders Display",sans-serif;
-  font-size:32px;
+.buy.can {
+  background: linear-gradient(135deg, #ff7a33, #ffad55);
+  color: #1a0d06;
+  border-color: transparent;
 }
 
-.achievement-list{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-top:16px;
+.buy:hover {
+  filter: brightness(1.1);
 }
 
-.achievement{
-  padding:15px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:rgba(0,0,0,.15);
-  opacity:.4;
+.prestige {
+  margin-top: 16px;
+  border: 1px solid #65401e;
+  background: linear-gradient(145deg, #2b1b0e, #17100b);
+  border-radius: 15px;
+  padding: 20px;
 }
 
-.achievement.unlocked{
-  opacity:1;
-  border-color:rgba(255,193,94,.4);
+.prestige h3 {
+  margin: 0 0 5px;
+  color: var(--gold);
 }
 
-.achievement-title{
-  font-weight:800;
+.prestige p {
+  color: var(--muted);
 }
 
-.achievement-desc{
-  color:var(--muted);
-  font-size:11px;
-  margin-top:3px;
+.prestige button {
+  padding: 12px 18px;
+  border: 1px solid #6b4824;
+  background: #24170d;
+  color: #fff;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
 }
 
-.reset{
-  margin-top:25px;
-  border:1px solid rgba(255,77,46,.35);
-  background:rgba(255,77,46,.08);
-  color:#ff8c78;
-  padding:11px 18px;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:700;
+.stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
 }
 
-/* TOAST */
-
-.toast{
-  position:fixed;
-  right:22px;
-  bottom:22px;
-  z-index:50;
-  padding:14px 18px;
-  border:1px solid var(--border);
-  border-radius:10px;
-  background:#24170f;
-  box-shadow:0 15px 35px rgba(0,0,0,.4);
-  transform:translateY(120px);
-  opacity:0;
-  transition:.3s;
-  font-weight:700;
+.stat {
+  padding: 20px;
+  background: #17100c;
+  border: 1px solid var(--line);
+  border-radius: 14px;
 }
 
-.toast.show{
-  transform:translateY(0);
-  opacity:1;
+.stat small {
+  color: var(--muted);
+  display: block;
 }
 
-/* CRIT FLASH */
-
-.flash{
-  position:fixed;
-  inset:0;
-  pointer-events:none;
-  background:rgba(255,140,40,.08);
-  opacity:0;
-  z-index:40;
+.stat strong {
+  font-size: 26px;
+  display: block;
+  margin-top: 6px;
 }
 
-.flash.active{
-  animation:flash .25s ease-out;
+.reset {
+  margin-top: 18px;
+  border: 1px solid #5c2824;
+  background: #24100f;
+  color: #ff9d96;
+  border-radius: 10px;
+  padding: 11px 16px;
+  font-weight: 800;
+  cursor: pointer;
 }
 
-@keyframes flash{
-  0%{opacity:1}
-  100%{opacity:0}
+.float {
+  position: absolute;
+  font-size: 25px;
+  font-weight: 900;
+  color: var(--gold);
+  animation: float 700ms ease-out forwards;
+  pointer-events: none;
+  z-index: 5;
 }
-
-/* RESPONSIVE */
 
-@media(max-width:850px){
-  .mine-grid{
-    grid-template-columns:1fr;
+@keyframes float {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
   }
 
-  .shop-grid{
-    grid-template-columns:1fr;
-  }
-
-  .top-stats{
-    grid-template-columns:repeat(2,1fr);
-  }
-
-  .achievement-list{
-    grid-template-columns:1fr 1fr;
+  100% {
+    opacity: 0;
+    transform: translateY(-90px) scale(1.15);
   }
 }
 
-@media(max-width:550px){
-  header{
-    padding:0 18px;
+.hit {
+  animation: hit .16s ease;
+}
+
+@keyframes hit {
+  50% {
+    filter: brightness(1.5);
+    transform: scale(.98);
+  }
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 25px;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  pointer-events: none;
+  background: #21150f;
+  border: 1px solid var(--orange);
+  padding: 12px 18px;
+  border-radius: 12px;
+  font-weight: 800;
+  z-index: 30;
+  transition: .25s;
+  box-shadow: 0 10px 35px #000;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+.achievement {
+  margin-top: 18px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media(max-width:800px) {
+  .grid {
+    grid-template-columns: 1fr;
   }
 
-  .header-money{
-    gap:8px;
+  .upgrades {
+    grid-template-columns: 1fr;
   }
 
-  .money{
-    font-size:21px;
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .app{
-    width:94%;
-    margin-top:18px;
+  .rock-button {
+    height: 330px;
+  }
+}
+
+@media(max-width:500px) {
+  .header {
+    padding: 12px;
   }
 
-  .tabs{
-    overflow-x:auto;
+  .header-inner {
+    align-items: flex-start;
+    flex-direction: column;
   }
 
-  .tab{
-    white-space:nowrap;
+  .money {
+    width: 100%;
   }
 
-  .mine-panel{
-    padding:17px;
+  .money-box {
+    flex: 1;
   }
 
-  .rock-button{
-    width:280px;
-    height:220px;
+  .container {
+    padding: 16px 10px 35px;
   }
 
-  .top-stats{
-    gap:8px;
+  .tabs {
+    overflow: auto;
   }
 
-  .stat-box{
-    padding:12px;
+  .tab {
+    flex: 1;
+    min-width: 90px;
+    padding: 11px 10px;
   }
 
-  .achievement-list{
-    grid-template-columns:1fr;
+  .rock-button {
+    height: 290px;
+  }
+
+  .stats {
+    grid-template-columns: 1fr 1fr;
   }
 }
 </style>
@@ -788,471 +546,654 @@ header{
 
 <body>
 
-<div class="bg">
-  <div class="glow a"></div>
-  <div class="glow b"></div>
+<header class="header">
+  <div class="header-inner">
 
-  <div class="ember"></div>
-  <div class="ember"></div>
-  <div class="ember"></div>
-  <div class="ember"></div>
-  <div class="ember"></div>
-  <div class="ember"></div>
-  <div class="ember"></div>
-</div>
-
-<div class="flash" id="flash"></div>
-
-<header>
-  <div class="logo">MINING<span>SIM</span></div>
-
-  <div class="header-money">
-    <div class="money-box">
-      <span class="money-label">Cash</span>
-      <span class="money" id="cash">$0</span>
+    <div class="logo">
+      MINING <span>SIM</span>
     </div>
 
-    <div class="money-box">
-      <span class="money-label">Ore</span>
-      <span class="money orange" id="ore">0</span>
+    <div class="money">
+
+      <div class="money-box">
+        <div class="money-label">Cash</div>
+        <div class="money-value" id="cash">$0</div>
+      </div>
+
+      <div class="money-box">
+        <div class="money-label">Ore</div>
+        <div class="money-value" id="ore">0</div>
+      </div>
+
     </div>
+
   </div>
 </header>
 
-<div class="app">
+<main class="container">
 
-  <div class="tabs">
-    <button class="tab active" data-page="minePage">⛏ MINE</button>
-    <button class="tab" data-page="shopPage">⚙ SHOP</button>
-    <button class="tab" data-page="statsPage">★ STATS</button>
-  </div>
+<nav class="tabs">
 
-  <!-- MINE PAGE -->
+  <button class="tab active" data-page="mine">
+    ⛏ MINE
+  </button>
 
-  <section class="page active" id="minePage">
+  <button class="tab" data-page="shop">
+    🛒 SHOP
+  </button>
 
-    <div class="top-stats">
+  <button class="tab" data-page="stats">
+    📊 STATS
+  </button>
 
-      <div class="stat-box">
-        <div class="stat-label">Mining Level</div>
-        <div class="stat-value orange" id="level">1</div>
+</nav>
+
+
+<!-- MINE PAGE -->
+
+<section id="mine" class="page active">
+
+  <div class="grid">
+
+    <div class="card mine-card">
+
+      <div class="prompt">
+        CLICK THE ROCK TO MINE ORE
       </div>
 
-      <div class="stat-box">
-        <div class="stat-label">Click Power</div>
-        <div class="stat-value" id="power">1</div>
-      </div>
+      <button
+        class="rock-button"
+        id="rockButton"
+        aria-label="Mine ore"
+      >
 
-      <div class="stat-box">
-        <div class="stat-label">Auto Mine</div>
-        <div class="stat-value green" id="auto">0/s</div>
-      </div>
+        <svg viewBox="0 0 500 360">
 
-      <div class="stat-box">
-        <div class="stat-label">Sale Value</div>
-        <div class="stat-value yellow" id="sale">$1</div>
-      </div>
+          <defs>
 
-    </div>
+            <radialGradient id="rock" cx="35%" cy="25%">
 
-    <div class="mine-grid">
-
-      <div class="panel mine-panel">
-
-        <div class="mine-title">
-          <h1>THE MINE</h1>
-          <div class="level">LEVEL <span id="levelTitle">1</span></div>
-        </div>
-
-        <div class="xp-bar">
-          <div class="xp-fill" id="xpFill"></div>
-        </div>
-
-        <div class="mine-area" id="mineArea">
-
-          <button class="rock-button" id="rockButton" aria-label="Mine ore">
-
-            <svg class="rock" viewBox="0 0 330 260" xmlns="http://www.w3.org/2000/svg">
-
-              <defs>
-                <radialGradient id="rockGrad" cx="50%" cy="35%">
-                  <stop offset="0%" stop-color="#5a4234"/>
-                  <stop offset="55%" stop-color="#35251d"/>
-                  <stop offset="100%" stop-color="#1c130f"/>
-                </radialGradient>
-
-                <linearGradient id="veinGrad" x1="0" y1="0" x2="1" y2="1">
-                  <stop offset="0%" stop-color="#ffdf75"/>
-                  <stop offset="45%" stop-color="#ff8a32"/>
-                  <stop offset="100%" stop-color="#ff3e1f"/>
-                </linearGradient>
-
-                <filter id="glow">
-                  <feGaussianBlur stdDeviation="4" result="blur"/>
-                  <feMerge>
-                    <feMergeNode in="blur"/>
-                    <feMergeNode in="SourceGraphic"/>
-                  </feMerge>
-                </filter>
-              </defs>
-
-              <path
-                d="M70 60 L115 25 L185 35 L250 70 L285 130 L260 200 L200 230 L125 218 L60 180 L38 115 Z"
-                fill="url(#rockGrad)"
-                stroke="#624536"
-                stroke-width="4"
+              <stop
+                offset="0"
+                stop-color="#9b5b35"
               />
 
-              <path
-                d="M100 90 L130 65 L155 82 L145 115 L113 130 L90 112 Z"
-                fill="#21150f"
+              <stop
+                offset=".55"
+                stop-color="#59301e"
               />
 
-              <path
-                d="M190 65 L235 90 L220 125 L188 110 L175 82 Z"
-                fill="#261810"
+              <stop
+                offset="1"
+                stop-color="#25150e"
               />
 
-              <path
-                d="M145 150 L180 130 L210 150 L195 185 L160 193 L130 175 Z"
-                fill="#25170f"
+            </radialGradient>
+
+            <filter id="glow">
+
+              <feGaussianBlur
+                stdDeviation="5"
+                result="b"
               />
 
-              <g class="vein" filter="url(#glow)">
-                <path
-                  d="M72 125 L105 105 L130 118 L155 100 L178 118 L205 104 L236 122"
-                  fill="none"
-                  stroke="url(#veinGrad)"
-                  stroke-width="10"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                />
+              <feMerge>
 
-                <path
-                  d="M122 70 L135 103 L125 125"
-                  fill="none"
-                  stroke="#ffc45d"
-                  stroke-width="7"
-                  stroke-linecap="round"
-                />
+                <feMergeNode in="b"/>
+                <feMergeNode in="SourceGraphic"/>
 
-                <path
-                  d="M177 120 L195 145 L190 174"
-                  fill="none"
-                  stroke="#ff6b2d"
-                  stroke-width="8"
-                  stroke-linecap="round"
-                />
-              </g>
+              </feMerge>
 
-              <circle cx="110" cy="145" r="5" fill="#ffcb65"/>
-              <circle cx="230" cy="150" r="4" fill="#ff7130"/>
-              <circle cx="150" cy="55" r="4" fill="#ffd166"/>
+            </filter>
 
-            </svg>
+          </defs>
 
-          </button>
 
-          <div class="click-power">
-            Click to mine • <strong id="powerText">+1 ore</strong>
-          </div>
+          <path
+            d="M75 280 48 190 95 85 205 38 350 58 438 145 405 270 300 325 155 320Z"
+            fill="url(#rock)"
+            stroke="#8b4b29"
+            stroke-width="7"
+          />
 
+
+          <path
+            d="M112 180 170 110 225 155 285 100 355 165 315 245 230 210 170 270Z"
+            fill="none"
+            stroke="#ff7a33"
+            stroke-width="18"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            filter="url(#glow)"
+          />
+
+
+          <path
+            d="M125 180 172 122M226 153 284 103M313 245 355 166"
+            stroke="#ffc15e"
+            stroke-width="7"
+            stroke-linecap="round"
+          />
+
+
+          <circle
+            cx="120"
+            cy="125"
+            r="8"
+            fill="#ffc15e"
+          />
+
+          <circle
+            cx="390"
+            cy="135"
+            r="7"
+            fill="#ff7a33"
+          />
+
+        </svg>
+
+        <div class="rock-text">
+          TAP / CLICK TO MINE
         </div>
 
-        <div class="combo">
-          COMBO <span id="combo">x1.00</span>
-        </div>
+      </button>
 
-        <div class="sell-row">
-          <button class="sell-btn" id="sellBtn" disabled>
-            SELL ALL ORE
-          </button>
-        </div>
 
+      <div class="ore-label">
+        Current Ore
+      </div>
+
+      <div class="ore-big" id="oreBig">
+        0
       </div>
 
 
-      <div class="panel side">
-
-        <h2>Mine Info</h2>
-        <p>Your operation at a glance.</p>
-
-        <div class="mini-stat">
-          <div class="mini-stat-label">Ore Value</div>
-          <div class="mini-stat-value yellow" id="oreValue">$0</div>
-        </div>
-
-        <div class="mini-stat">
-          <div class="mini-stat-label">Critical Chance</div>
-          <div class="mini-stat-value orange" id="critChance">5%</div>
-        </div>
-
-        <div class="mini-stat">
-          <div class="mini-stat-label">Critical Multiplier</div>
-          <div class="mini-stat-value">x5</div>
-        </div>
-
-        <div class="mini-stat">
-          <div class="mini-stat-label">Conveyor</div>
-          <div class="mini-stat-value green" id="conveyor">0/s</div>
-        </div>
-
-        <div class="mini-stat">
-          <div class="mini-stat-label">Prestige Shards</div>
-          <div class="mini-stat-value yellow" id="shards">0</div>
-        </div>
-
-      </div>
-
-    </div>
-  </section>
-
-
-  <!-- SHOP PAGE -->
-
-  <section class="page" id="shopPage">
-
-    <div class="shop-grid">
-
-      <div class="upgrade">
-
-        <div class="upgrade-top">
-          <div>
-            <h3>⛏ Pickaxe Power</h3>
-            <div class="upgrade-desc">
-              Increases the amount of ore earned per click.
-            </div>
-          </div>
-
-          <div class="upgrade-level">
-            LV <span id="pickLvl">0</span>
-          </div>
-        </div>
-
-        <div class="upgrade-bottom">
-          <div class="cost" id="pickCost">$25</div>
-          <button class="buy" data-upgrade="pick">BUY</button>
-        </div>
-
-      </div>
-
-
-      <div class="upgrade">
-
-        <div class="upgrade-top">
-          <div>
-            <h3>🤖 Drill Rig</h3>
-            <div class="upgrade-desc">
-              Automatically mines ore every second.
-            </div>
-          </div>
-
-          <div class="upgrade-level">
-            LV <span id="autoLvl">0</span>
-          </div>
-        </div>
-
-        <div class="upgrade-bottom">
-          <div class="cost" id="autoCost">$100</div>
-          <button class="buy" data-upgrade="auto">BUY</button>
-        </div>
-
-      </div>
-
-
-      <div class="upgrade">
-
-        <div class="upgrade-top">
-          <div>
-            <h3>🔥 Furnace Efficiency</h3>
-            <div class="upgrade-desc">
-              Makes every piece of ore worth more money.
-            </div>
-          </div>
-
-          <div class="upgrade-level">
-            LV <span id="furnaceLvl">0</span>
-          </div>
-        </div>
-
-        <div class="upgrade-bottom">
-          <div class="cost" id="furnaceCost">$150</div>
-          <button class="buy" data-upgrade="furnace">BUY</button>
-        </div>
-
-      </div>
-
-
-      <div class="upgrade">
-
-        <div class="upgrade-top">
-          <div>
-            <h3>⚙ Conveyor Belt</h3>
-            <div class="upgrade-desc">
-              Automatically sells a portion of your ore.
-            </div>
-          </div>
-
-          <div class="upgrade-level">
-            LV <span id="conveyorLvl">0</span>
-          </div>
-        </div>
-
-        <div class="upgrade-bottom">
-          <div class="cost" id="conveyorCost">$250</div>
-          <button class="buy" data-upgrade="conveyor">BUY</button>
-        </div>
-
-      </div>
-
-
-      <div class="upgrade">
-
-        <div class="upgrade-top">
-          <div>
-            <h3>🍀 Lucky Vein</h3>
-            <div class="upgrade-desc">
-              Increases your chance of landing a critical strike.
-            </div>
-          </div>
-
-          <div class="upgrade-level">
-            LV <span id="luckLvl">0</span>
-          </div>
-        </div>
-
-        <div class="upgrade-bottom">
-          <div class="cost" id="luckCost">$500</div>
-          <button class="buy" data-upgrade="luck">BUY</button>
-        </div>
-
-      </div>
-
-
-      <div class="prestige">
-
-        <h2>🔥 SMELT DOWN</h2>
-
-        <p>
-          Reset your current mining progress in exchange for permanent
-          prestige shards. Each shard increases your sale multiplier.
-        </p>
-
-        <div style="margin-bottom:15px;color:#ffd166;font-weight:700">
-          Potential shards:
-          <span id="potentialShards">0</span>
-        </div>
-
-        <button class="smelt" id="prestigeBtn">
-          SMELT DOWN
-        </button>
-
-      </div>
-
-    </div>
-
-  </section>
-
-
-  <!-- STATS PAGE -->
-
-  <section class="page" id="statsPage">
-
-    <div class="stats-grid">
-
-      <div class="big-stat">
-        <div class="label">Total Cash Earned</div>
-        <div class="number yellow" id="totalCash">$0</div>
-      </div>
-
-      <div class="big-stat">
-        <div class="label">Total Ore Mined</div>
-        <div class="number orange" id="totalOre">0</div>
-      </div>
-
-      <div class="big-stat">
-        <div class="label">Total Clicks</div>
-        <div class="number" id="clicks">0</div>
-      </div>
-
-      <div class="big-stat">
-        <div class="label">Critical Strikes</div>
-        <div class="number orange" id="crits">0</div>
-      </div>
-
-    </div>
-
-
-    <div class="panel achievements">
-
-      <h2>ACHIEVEMENTS</h2>
-
-      <div class="achievement-list">
-
-        <div class="achievement" id="achievement-first">
-          <div class="achievement-title">⛏ First Strike</div>
-          <div class="achievement-desc">Mine your first ore.</div>
-        </div>
-
-        <div class="achievement" id="achievement-ore">
-          <div class="achievement-title">🪨 Rock Solid</div>
-          <div class="achievement-desc">Mine 100 ore.</div>
-        </div>
-
-        <div class="achievement" id="achievement-cash">
-          <div class="achievement-title">💰 Pocket Change</div>
-          <div class="achievement-desc">Earn $1,000 total.</div>
-        </div>
-
-        <div class="achievement" id="achievement-crit">
-          <div class="achievement-title">⚡ Lucky Break</div>
-          <div class="achievement-desc">Land a critical strike.</div>
-        </div>
-
-        <div class="achievement" id="achievement-level">
-          <div class="achievement-title">🔥 Deep Miner</div>
-          <div class="achievement-desc">Reach level 10.</div>
-        </div>
-
-        <div class="achievement" id="achievement-furnace">
-          <div class="achievement-title">🏭 Forge Master</div>
-          <div class="achievement-desc">Reach Furnace level 5.</div>
-        </div>
-
-      </div>
-
-      <button class="reset" id="resetBtn">
-        RESET SAVE
+      <button
+        class="sell"
+        id="sellButton"
+      >
+        💰 SELL ALL ORE
       </button>
 
     </div>
 
-  </section>
 
-</div>
+    <!-- MINE INFORMATION -->
 
-<div class="toast" id="toast"></div>
+    <aside class="card">
+
+      <h2 style="margin-top:0">
+        YOUR MINE
+      </h2>
+
+
+      <div class="info-row">
+
+        <span>
+          Pickaxe Power
+        </span>
+
+        <strong id="power">
+          1
+        </strong>
+
+      </div>
+
+
+      <div class="info-row">
+
+        <span>
+          Auto Mining
+        </span>
+
+        <strong id="auto">
+          0/s
+        </strong>
+
+      </div>
+
+
+      <div class="info-row">
+
+        <span>
+          Ore Value
+        </span>
+
+        <strong id="value">
+          $1.00
+        </strong>
+
+      </div>
+
+
+      <div class="info-row">
+
+        <span>
+          Sale Multiplier
+        </span>
+
+        <strong id="mult">
+          x1.00
+        </strong>
+
+      </div>
+
+
+      <div class="info-row">
+
+        <span>
+          Crit Chance
+        </span>
+
+        <strong id="crit">
+          5%
+        </strong>
+
+      </div>
+
+
+      <div class="combo">
+
+        COMBO
+
+        <strong id="combo">
+          x1.00
+        </strong>
+
+        <div class="xp">
+
+          <i id="xpBar"></i>
+
+        </div>
+
+        <div
+          style="
+            color:var(--muted);
+            font-size:12px;
+            margin-top:6px
+          "
+        >
+
+          LEVEL
+
+          <span id="level">
+            1
+          </span>
+
+          • Keep clicking for XP
+
+        </div>
+
+      </div>
+
+
+      <p class="achievement">
+
+        💡 Mine → sell your ore → buy upgrades.
+        Keep clicking quickly to build a combo.
+
+      </p>
+
+    </aside>
+
+  </div>
+
+</section>
+
+
+
+<!-- SHOP PAGE -->
+
+<section id="shop" class="page">
+
+  <div class="section-head">
+
+    <div>
+
+      <h2>
+        UPGRADES
+      </h2>
+
+      <p>
+        Spend cash to make your mine stronger.
+      </p>
+
+    </div>
+
+    <strong id="shopCash">
+      $0
+    </strong>
+
+  </div>
+
+
+  <div class="upgrades">
+
+
+    <!-- PICKAXE -->
+
+    <div class="upgrade">
+
+      <h3>
+        ⛏ Pickaxe Power
+      </h3>
+
+      <p>
+        Each click mines more ore.
+      </p>
+
+      <div class="level">
+
+        LEVEL
+        <span id="pickaxeLvl">0</span>
+
+      </div>
+
+      <button
+        class="buy"
+        data-upgrade="pickaxe"
+      >
+        BUY • $10
+      </button>
+
+    </div>
+
+
+    <!-- DRILL -->
+
+    <div class="upgrade">
+
+      <h3>
+        🤖 Drill Rig
+      </h3>
+
+      <p>
+        Automatically mines ore every second.
+      </p>
+
+      <div class="level">
+
+        LEVEL
+        <span id="drillLvl">0</span>
+
+      </div>
+
+      <button
+        class="buy"
+        data-upgrade="drill"
+      >
+        BUY • $50
+      </button>
+
+    </div>
+
+
+    <!-- FURNACE -->
+
+    <div class="upgrade">
+
+      <h3>
+        🔥 Furnace
+      </h3>
+
+      <p>
+        Increases how much cash you get when selling.
+      </p>
+
+      <div class="level">
+
+        LEVEL
+        <span id="furnaceLvl">0</span>
+
+      </div>
+
+      <button
+        class="buy"
+        data-upgrade="furnace"
+      >
+        BUY • $75
+      </button>
+
+    </div>
+
+
+    <!-- CONVEYOR -->
+
+    <div class="upgrade">
+
+      <h3>
+        🚚 Conveyor Belt
+      </h3>
+
+      <p>
+        Automatically sells ore every second.
+      </p>
+
+      <div class="level">
+
+        LEVEL
+        <span id="conveyorLvl">0</span>
+
+      </div>
+
+      <button
+        class="buy"
+        data-upgrade="conveyor"
+      >
+        BUY • $100
+      </button>
+
+    </div>
+
+
+    <!-- LUCK -->
+
+    <div class="upgrade">
+
+      <h3>
+        🍀 Lucky Vein
+      </h3>
+
+      <p>
+        Raises your chance of a huge critical hit.
+      </p>
+
+      <div class="level">
+
+        LEVEL
+        <span id="luckLvl">0</span>
+
+      </div>
+
+      <button
+        class="buy"
+        data-upgrade="luck"
+      >
+        BUY • $150
+      </button>
+
+    </div>
+
+  </div>
+
+
+  <!-- PRESTIGE -->
+
+  <div class="prestige">
+
+    <h3>
+      ♻ SMELT DOWN / PRESTIGE
+    </h3>
+
+    <p>
+      Reset your upgrades and run cash to earn
+      permanent Shards. Every Shard gives +5% sale value.
+    </p>
+
+    <p>
+
+      Available now:
+
+      <strong id="shardsGain">
+        0 Shards
+      </strong>
+
+    </p>
+
+    <button id="prestigeButton">
+      SMELT DOWN
+    </button>
+
+  </div>
+
+</section>
+
+
+
+<!-- STATS PAGE -->
+
+<section id="stats" class="page">
+
+  <div class="section-head">
+
+    <div>
+
+      <h2>
+        STATS
+      </h2>
+
+      <p>
+        Your lifetime mining record.
+      </p>
+
+    </div>
+
+  </div>
+
+
+  <div class="stats">
+
+
+    <div class="stat">
+
+      <small>
+        Total Cash Earned
+      </small>
+
+      <strong id="totalCash">
+        $0
+      </strong>
+
+    </div>
+
+
+    <div class="stat">
+
+      <small>
+        Total Ore Mined
+      </small>
+
+      <strong id="totalOre">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat">
+
+      <small>
+        Rock Clicks
+      </small>
+
+      <strong id="clicks">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat">
+
+      <small>
+        Critical Hits
+      </small>
+
+      <strong id="crits">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat">
+
+      <small>
+        Shards
+      </small>
+
+      <strong id="shards">
+        0
+      </strong>
+
+    </div>
+
+
+    <div class="stat">
+
+      <small>
+        Current Level
+      </small>
+
+      <strong id="statLevel">
+        1
+      </strong>
+
+    </div>
+
+  </div>
+
+
+  <button
+    class="reset"
+    id="resetButton"
+  >
+    RESET ALL PROGRESS
+  </button>
+
+</section>
+
+</main>
+
+
+<div
+  class="toast"
+  id="toast"
+></div>
+
+
 
 <script>
 
-/* ==============================
-   GAME STATE
-============================== */
+const SAVE_KEY = "mining-sim-v2";
+
 
 const defaultState = {
+
   cash: 0,
   ore: 0,
 
-  pickaxeLvl: 0,
-  autoLvl: 0,
-  furnaceLvl: 0,
-  conveyorLvl: 0,
-  luckLvl: 0,
+  pickaxe: 0,
+  drill: 0,
+  furnace: 0,
+  conveyor: 0,
+  luck: 0,
 
   shards: 0,
 
   totalCash: 0,
   totalOre: 0,
+
   clicks: 0,
   crits: 0,
 
@@ -1262,970 +1203,962 @@ const defaultState = {
   combo: 1,
   lastClick: 0,
   lastSeen: Date.now()
+
 };
 
-let state = loadGame();
+
+let state = {
+  ...defaultState
+};
 
 
-/* ==============================
-   SAVE / LOAD
-============================== */
+try {
 
-function loadGame(){
+  const saved =
+    JSON.parse(
+      localStorage.getItem(SAVE_KEY)
+    );
 
-  try{
+  if (saved) {
 
-    const saved = localStorage.getItem("mining-sim-save");
+    state = {
+      ...defaultState,
+      ...saved
+    };
 
-    if(saved){
-      return {
-        ...defaultState,
-        ...JSON.parse(saved)
-      };
-    }
-
-  }catch(e){
-    console.log("Save load failed.");
   }
 
-  return {...defaultState};
+} catch (e) {
+
 }
 
 
-function saveGame(){
+function money(n) {
+
+  return "$" +
+    Math.floor(n).toLocaleString();
+
+}
+
+
+function num(n) {
+
+  return Math.floor(n).toLocaleString();
+
+}
+
+
+function clickPower() {
+
+  return 1 +
+    state.pickaxe * 2;
+
+}
+
+
+function autoRate() {
+
+  return state.drill * .75;
+
+}
+
+
+function saleMultiplier() {
+
+  return 1 +
+    state.furnace * .20 +
+    state.shards * .05;
+
+}
+
+
+function conveyorRate() {
+
+  return state.conveyor * .50;
+
+}
+
+
+function critChance() {
+
+  return Math.min(
+    .50,
+    .05 + state.luck * .04
+  );
+
+}
+
+
+function upgradeCost(type) {
+
+  const base = {
+
+    pickaxe: 10,
+    drill: 50,
+    furnace: 75,
+    conveyor: 100,
+    luck: 150
+
+  }[type];
+
+
+  const level = state[type];
+
+
+  return Math.floor(
+    base * Math.pow(1.55, level)
+  );
+
+}
+
+
+function xpNeeded() {
+
+  return 10 +
+    (state.level - 1) * 15;
+
+}
+
+
+const $ = id =>
+  document.getElementById(id);
+
+
+
+function save() {
 
   state.lastSeen = Date.now();
 
-  try{
+  try {
+
     localStorage.setItem(
-      "mining-sim-save",
+      SAVE_KEY,
       JSON.stringify(state)
     );
-  }catch(e){
-    console.log("Save failed.");
+
+  } catch (e) {}
+
+}
+
+
+
+function toast(message) {
+
+  const t = $("toast");
+
+  t.textContent = message;
+
+  t.classList.add("show");
+
+  clearTimeout(
+    window.toastTimer
+  );
+
+  window.toastTimer =
+    setTimeout(() => {
+
+      t.classList.remove("show");
+
+    }, 1800);
+
+}
+
+
+
+function floatText(
+  text,
+  x,
+  y,
+  crit = false
+) {
+
+  const el =
+    document.createElement("div");
+
+  el.className = "float";
+
+  el.textContent = text;
+
+  el.style.left =
+    (x - 20) + "px";
+
+  el.style.top =
+    (y - 20) + "px";
+
+  if (crit) {
+
+    el.style.fontSize =
+      "32px";
+
   }
-}
 
+  document.body.appendChild(el);
 
-/* ==============================
-   NUMBER FORMATTING
-============================== */
-
-function money(n){
-
-  if(n >= 1000000000)
-    return "$" + (n/1000000000).toFixed(2) + "B";
-
-  if(n >= 1000000)
-    return "$" + (n/1000000).toFixed(2) + "M";
-
-  if(n >= 1000)
-    return "$" + (n/1000).toFixed(2) + "K";
-
-  return "$" + Math.floor(n).toLocaleString();
-}
-
-
-function number(n){
-
-  if(n >= 1000000000)
-    return (n/1000000000).toFixed(2) + "B";
-
-  if(n >= 1000000)
-    return (n/1000000).toFixed(2) + "M";
-
-  if(n >= 1000)
-    return (n/1000).toFixed(2) + "K";
-
-  return Math.floor(n).toLocaleString();
-}
-
-
-/* ==============================
-   GAME CALCULATIONS
-============================== */
-
-function clickPower(){
-
-  return 1 + state.pickaxeLvl * 2;
-}
-
-
-function autoRate(){
-
-  return state.autoLvl * 0.5;
-}
-
-
-function saleMultiplier(){
-
-  return 1
-    + state.furnaceLvl * 0.15
-    + state.shards * 0.05;
-}
-
-
-function salePrice(){
-
-  return saleMultiplier();
-}
-
-
-function conveyorRate(){
-
-  return state.conveyorLvl * 0.25;
-}
-
-
-function critChance(){
-
-  return Math.min(
-    0.05 + state.luckLvl * 0.03,
-    0.5
+  setTimeout(
+    () => el.remove(),
+    750
   );
+
 }
 
 
-function upgradeCost(type){
 
-  const levels = {
-    pick: state.pickaxeLvl,
-    auto: state.autoLvl,
-    furnace: state.furnaceLvl,
-    conveyor: state.conveyorLvl,
-    luck: state.luckLvl
-  };
-
-  const bases = {
-    pick: 25,
-    auto: 100,
-    furnace: 150,
-    conveyor: 250,
-    luck: 500
-  };
-
-  const level = levels[type];
-
-  return Math.floor(
-    bases[type] * Math.pow(1.65, level)
-  );
-}
-
-
-/* ==============================
-   XP / LEVEL
-============================== */
-
-function xpNeeded(){
-
-  return 25 + (state.level - 1) * 20;
-}
-
-
-function addXP(amount){
+function addXP(amount) {
 
   state.xp += amount;
 
-  while(state.xp >= xpNeeded()){
+
+  while (
+    state.xp >= xpNeeded()
+  ) {
 
     state.xp -= xpNeeded();
+
     state.level++;
 
-    toast("LEVEL UP! You reached level " + state.level);
+    toast(
+      "LEVEL UP! You reached level " +
+      state.level
+    );
 
-    playSound("level");
   }
+
 }
 
 
-/* ==============================
-   MINE
-============================== */
 
-function mine(){
+function mine() {
 
-  const now = Date.now();
+  const now =
+    Date.now();
 
-  if(now - state.lastClick > 1600){
+
+  if (
+    now - state.lastClick < 1600
+  ) {
+
+    state.combo =
+      Math.min(
+        1.30,
+        state.combo + .03
+      );
+
+  } else {
+
     state.combo = 1;
-  }else{
-    state.combo = Math.min(
-      1.3,
-      state.combo + 0.03
-    );
+
   }
 
+
   state.lastClick = now;
+
 
   let amount =
     clickPower() *
     state.combo;
 
-  let critical = false;
 
-  if(Math.random() < critChance()){
+  let crit = false;
 
-    critical = true;
+
+  if (
+    Math.random() <
+    critChance()
+  ) {
 
     amount *= 5;
 
     state.crits++;
 
-    flash();
+    crit = true;
 
-    playSound("crit");
-
-  }else{
-
-    playSound("hit");
   }
 
+
   state.ore += amount;
+
   state.totalOre += amount;
+
   state.clicks++;
 
-  addXP(Math.max(1,Math.floor(amount)));
 
-  animateRock();
-  floatingText(
-    critical ? "CRIT! +" + Math.floor(amount) : "+" + Math.floor(amount),
-    critical
+  addXP(
+    Math.max(
+      1,
+      Math.floor(amount)
+    )
   );
 
-  particles();
+
+  const btn =
+    $("rockButton");
+
+
+  btn.classList.remove(
+    "hit"
+  );
+
+
+  void btn.offsetWidth;
+
+
+  btn.classList.add(
+    "hit"
+  );
+
+
+  const r =
+    btn.getBoundingClientRect();
+
+
+  floatText(
+
+    (crit ? "CRIT! " : "+") +
+    num(amount) +
+    " ORE",
+
+    r.left + r.width / 2,
+
+    r.top + r.height * .45,
+
+    crit
+
+  );
+
 
   update();
 
-  saveGame();
 }
 
 
-/* ==============================
-   SELL
-============================== */
 
-function sellOre(){
+function sellOre() {
 
-  if(state.ore <= 0) return;
+  if (state.ore <= 0) {
+
+    toast(
+      "Mine some ore first!"
+    );
+
+    return;
+
+  }
+
+
+  const sold =
+    state.ore;
+
 
   const earned =
-    state.ore * salePrice();
+    sold * saleMultiplier();
+
 
   state.cash += earned;
+
   state.totalCash += earned;
 
   state.ore = 0;
 
-  toast("Sold ore for " + money(earned));
 
-  playSound("sell");
+  toast(
+    "SOLD " +
+    num(sold) +
+    " ORE FOR " +
+    money(earned)
+  );
+
+
+  save();
 
   update();
-  saveGame();
+
 }
 
 
-/* ==============================
-   BUY UPGRADES
-============================== */
 
-function buyUpgrade(type){
+function buy(type) {
 
-  const cost = upgradeCost(type);
+  const cost =
+    upgradeCost(type);
 
-  if(state.cash < cost){
 
-    toast("Not enough cash!");
+  if (state.cash < cost) {
 
-    playSound("error");
+    toast(
+      "You need " +
+      money(cost - state.cash) +
+      " more cash."
+    );
 
     return;
+
   }
+
 
   state.cash -= cost;
 
-  if(type === "pick")
-    state.pickaxeLvl++;
-
-  if(type === "auto")
-    state.autoLvl++;
-
-  if(type === "furnace")
-    state.furnaceLvl++;
-
-  if(type === "conveyor")
-    state.conveyorLvl++;
-
-  if(type === "luck")
-    state.luckLvl++;
-
-  toast("Upgrade purchased!");
-
-  playSound("buy");
-
-  update();
-  saveGame();
-}
+  state[type]++;
 
 
-/* ==============================
-   PRESTIGE
-============================== */
+  const names = {
 
-function potentialShards(){
+    pickaxe: "Pickaxe Power",
 
-  return Math.floor(
-    Math.sqrt(state.totalCash / 50000)
-  );
-}
+    drill: "Drill Rig",
 
+    furnace: "Furnace",
 
-function prestige(){
+    conveyor: "Conveyor Belt",
 
-  const shards = potentialShards();
+    luck: "Lucky Vein"
 
-  if(shards <= state.shards){
+  };
 
-    toast("You need more lifetime cash.");
-
-    return;
-  }
-
-  const oldShards = state.shards;
-
-  if(!confirm(
-    "Smelt down your current progress?\n\n" +
-    "You will gain " +
-    (shards - oldShards) +
-    " new prestige shard(s)."
-  )){
-    return;
-  }
-
-  state.cash = 0;
-  state.ore = 0;
-
-  state.pickaxeLvl = 0;
-  state.autoLvl = 0;
-  state.furnaceLvl = 0;
-  state.conveyorLvl = 0;
-  state.luckLvl = 0;
-
-  state.shards = shards;
-
-  state.combo = 1;
 
   toast(
-    "SMELTED DOWN! Sale multiplier: x" +
-    saleMultiplier().toFixed(2)
+    names[type] +
+    " upgraded!"
   );
 
-  playSound("prestige");
+
+  save();
 
   update();
-  saveGame();
+
 }
 
 
-/* ==============================
-   ANIMATIONS
-============================== */
 
-function animateRock(){
+function prestige() {
 
-  const rock =
-    document.getElementById("rockButton");
-
-  rock.classList.remove("hit");
-
-  void rock.offsetWidth;
-
-  rock.classList.add("hit");
-}
-
-
-function floatingText(text,critical=false){
-
-  const area =
-    document.getElementById("mineArea");
-
-  const el =
-    document.createElement("div");
-
-  el.className =
-    "float" + (critical ? " crit" : "");
-
-  el.textContent = text;
-
-  const x =
-    40 + Math.random()*20;
-
-  const y =
-    42 + Math.random()*18;
-
-  el.style.left = x + "%";
-  el.style.top = y + "%";
-
-  area.appendChild(el);
-
-  setTimeout(()=>{
-    el.remove();
-  },900);
-}
-
-
-function particles(){
-
-  const area =
-    document.getElementById("mineArea");
-
-  for(let i=0;i<7;i++){
-
-    const p =
-      document.createElement("div");
-
-    p.className = "particle";
-
-    p.style.left =
-      (50 + (Math.random()-0.5)*20) + "%";
-
-    p.style.top =
-      (45 + (Math.random()-0.5)*15) + "%";
-
-    p.style.setProperty(
-      "--x",
-      ((Math.random()-.5)*150) + "px"
-    );
-
-    p.style.setProperty(
-      "--y",
-      ((Math.random()-.5)*120) + "px"
-    );
-
-    area.appendChild(p);
-
-    setTimeout(()=>{
-      p.remove();
-    },700);
-  }
-}
-
-
-function flash(){
-
-  const el =
-    document.getElementById("flash");
-
-  el.classList.remove("active");
-
-  void el.offsetWidth;
-
-  el.classList.add("active");
-}
-
-
-/* ==============================
-   TOAST
-============================== */
-
-let toastTimer;
-
-function toast(message){
-
-  const el =
-    document.getElementById("toast");
-
-  el.textContent = message;
-
-  el.classList.add("show");
-
-  clearTimeout(toastTimer);
-
-  toastTimer =
-    setTimeout(()=>{
-      el.classList.remove("show");
-    },2200);
-}
-
-
-/* ==============================
-   AUDIO
-============================== */
-
-let audioCtx;
-
-function audio(){
-
-  if(!audioCtx){
-
-    audioCtx =
-      new (window.AudioContext ||
-           window.webkitAudioContext)();
-  }
-
-  return audioCtx;
-}
-
-
-function playSound(type){
-
-  try{
-
-    const ctx = audio();
-
-    const osc =
-      ctx.createOscillator();
-
-    const gain =
-      ctx.createGain();
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    let frequency = 180;
-
-    if(type === "hit")
-      frequency = 130 + Math.random()*50;
-
-    if(type === "crit")
-      frequency = 520;
-
-    if(type === "sell")
-      frequency = 350;
-
-    if(type === "buy")
-      frequency = 430;
-
-    if(type === "level")
-      frequency = 650;
-
-    if(type === "prestige")
-      frequency = 800;
-
-    if(type === "error")
-      frequency = 90;
-
-    osc.frequency.value = frequency;
-
-    osc.type =
-      type === "crit" ||
-      type === "level" ||
-      type === "prestige"
-        ? "triangle"
-        : "square";
-
-    gain.gain.setValueAtTime(
-      .04,
-      ctx.currentTime
-    );
-
-    gain.gain.exponentialRampToValueAtTime(
-      .001,
-      ctx.currentTime + .12
-    );
-
-    osc.start();
-
-    osc.stop(
-      ctx.currentTime + .12
-    );
-
-  }catch(e){}
-}
-
-
-/* ==============================
-   OFFLINE EARNINGS
-============================== */
-
-function offlineEarnings(){
-
-  const previous =
-    Number(state.lastSeen || Date.now());
-
-  const seconds =
-    Math.min(
-      60 * 60 * 8,
-      Math.max(
-        0,
-        (Date.now()-previous)/1000
+  const possible =
+    Math.floor(
+      Math.sqrt(
+        state.totalCash / 10000
       )
     );
 
-  if(seconds < 10) return;
 
-  const generated =
-    autoRate() * seconds;
+  const gain =
+    possible - state.shards;
 
-  if(generated <= 0) return;
 
-  const sold =
-    generated * conveyorRate();
+  if (gain <= 0) {
 
-  const remaining =
-    generated - sold;
+    toast(
+      "Earn more lifetime cash to prestige."
+    );
 
-  state.ore += remaining;
+    return;
 
-  if(sold > 0){
-
-    const cash =
-      sold * salePrice();
-
-    state.cash += cash;
-    state.totalCash += cash;
   }
+
+
+  if (
+    !confirm(
+      "Smelt down and gain " +
+      gain +
+      " Shard" +
+      (gain === 1 ? "" : "s") +
+      "? Your current upgrades and cash will reset."
+    )
+  ) {
+
+    return;
+
+  }
+
+
+  state.cash = 0;
+
+  state.ore = 0;
+
+
+  state.pickaxe = 0;
+  state.drill = 0;
+  state.furnace = 0;
+  state.conveyor = 0;
+  state.luck = 0;
+
+
+  state.level = 1;
+  state.xp = 0;
+  state.combo = 1;
+
+
+  state.shards =
+    possible;
+
 
   toast(
-    "While you were away: +" +
-    Math.floor(generated) +
-    " ore"
+    "Prestige complete! Permanent bonus unlocked."
   );
+
+
+  save();
+
+  update();
+
 }
 
 
-/* ==============================
-   ACHIEVEMENTS
-============================== */
 
-function achievements(){
+function update() {
 
-  unlock(
-    "achievement-first",
-    state.clicks >= 1
-  );
-
-  unlock(
-    "achievement-ore",
-    state.totalOre >= 100
-  );
-
-  unlock(
-    "achievement-cash",
-    state.totalCash >= 1000
-  );
-
-  unlock(
-    "achievement-crit",
-    state.crits >= 1
-  );
-
-  unlock(
-    "achievement-level",
-    state.level >= 10
-  );
-
-  unlock(
-    "achievement-furnace",
-    state.furnaceLvl >= 5
-  );
-}
-
-
-function unlock(id,condition){
-
-  const el =
-    document.getElementById(id);
-
-  if(condition){
-    el.classList.add("unlocked");
-  }
-}
-
-
-/* ==============================
-   UPDATE UI
-============================== */
-
-function update(){
-
-  document.getElementById("cash").textContent =
+  $("cash").textContent =
     money(state.cash);
 
-  document.getElementById("ore").textContent =
-    number(state.ore);
+  $("ore").textContent =
+    num(state.ore);
 
-  document.getElementById("level").textContent =
+  $("oreBig").textContent =
+    num(state.ore);
+
+  $("shopCash").textContent =
+    money(state.cash);
+
+
+  $("power").textContent =
+    num(clickPower());
+
+  $("auto").textContent =
+    autoRate().toFixed(2) +
+    "/s";
+
+  $("value").textContent =
+    "$" +
+    saleMultiplier().toFixed(2);
+
+  $("mult").textContent =
+    "x" +
+    saleMultiplier().toFixed(2);
+
+  $("crit").textContent =
+    Math.round(
+      critChance() * 100
+    ) +
+    "%";
+
+
+  $("combo").textContent =
+    "x" +
+    state.combo.toFixed(2);
+
+
+  $("level").textContent =
     state.level;
 
-  document.getElementById("levelTitle").textContent =
+
+  $("statLevel").textContent =
     state.level;
 
-  document.getElementById("power").textContent =
-    number(clickPower());
 
-  document.getElementById("powerText").textContent =
-    "+" + number(clickPower()) + " ore";
-
-  document.getElementById("auto").textContent =
-    autoRate().toFixed(1) + "/s";
-
-  document.getElementById("sale").textContent =
-    "x" + salePrice().toFixed(2);
-
-  document.getElementById("oreValue").textContent =
-    money(state.ore * salePrice());
-
-  document.getElementById("critChance").textContent =
-    Math.round(critChance()*100) + "%";
-
-  document.getElementById("conveyor").textContent =
-    conveyorRate().toFixed(2) + "/s";
-
-  document.getElementById("shards").textContent =
-    state.shards;
-
-  document.getElementById("combo").textContent =
-    "x" + state.combo.toFixed(2);
-
-  const xp =
-    xpNeeded();
-
-  document.getElementById("xpFill").style.width =
+  $("xpBar").style.width =
     Math.min(
       100,
-      state.xp/xp*100
-    ) + "%";
-
-  document.getElementById("sellBtn").disabled =
-    state.ore <= 0;
+      state.xp / xpNeeded() * 100
+    ) +
+    "%";
 
 
-  /* SHOP */
+  $("pickaxeLvl").textContent =
+    state.pickaxe;
 
-  document.getElementById("pickLvl").textContent =
-    state.pickaxeLvl;
+  $("drillLvl").textContent =
+    state.drill;
 
-  document.getElementById("autoLvl").textContent =
-    state.autoLvl;
+  $("furnaceLvl").textContent =
+    state.furnace;
 
-  document.getElementById("furnaceLvl").textContent =
-    state.furnaceLvl;
+  $("conveyorLvl").textContent =
+    state.conveyor;
 
-  document.getElementById("conveyorLvl").textContent =
-    state.conveyorLvl;
-
-  document.getElementById("luckLvl").textContent =
-    state.luckLvl;
-
-  document.getElementById("pickCost").textContent =
-    money(upgradeCost("pick"));
-
-  document.getElementById("autoCost").textContent =
-    money(upgradeCost("auto"));
-
-  document.getElementById("furnaceCost").textContent =
-    money(upgradeCost("furnace"));
-
-  document.getElementById("conveyorCost").textContent =
-    money(upgradeCost("conveyor"));
-
-  document.getElementById("luckCost").textContent =
-    money(upgradeCost("luck"));
-
-  document.getElementById("potentialShards").textContent =
-    potentialShards();
+  $("luckLvl").textContent =
+    state.luck;
 
 
-  document.querySelectorAll(".buy").forEach(btn=>{
 
-    const cost =
-      upgradeCost(btn.dataset.upgrade);
+  document
+    .querySelectorAll(".buy")
+    .forEach(btn => {
 
-    btn.disabled =
-      state.cash < cost;
+      const type =
+        btn.dataset.upgrade;
+
+      const cost =
+        upgradeCost(type);
+
+
+      btn.textContent =
+        (state.cash >= cost
+          ? "BUY"
+          : "NEED") +
+        " • " +
+        money(cost);
+
+
+      btn.classList.toggle(
+        "can",
+        state.cash >= cost
+      );
+
+    });
+
+
+
+  $("totalCash").textContent =
+    money(state.totalCash);
+
+  $("totalOre").textContent =
+    num(state.totalOre);
+
+  $("clicks").textContent =
+    num(state.clicks);
+
+  $("crits").textContent =
+    num(state.crits);
+
+  $("shards").textContent =
+    num(state.shards);
+
+
+
+  const possible =
+    Math.floor(
+      Math.sqrt(
+        state.totalCash / 10000
+      )
+    );
+
+
+  const gain =
+    possible - state.shards;
+
+
+  $("shardsGain").textContent =
+    (gain > 0 ? gain : 0) +
+    " Shard" +
+    ((gain > 0 ? gain : 0) === 1
+      ? ""
+      : "s") +
+    " available";
+
+}
+
+
+
+document
+  .querySelectorAll(".tab")
+  .forEach(tab => {
+
+    tab.addEventListener(
+      "click",
+      () => {
+
+        document
+          .querySelectorAll(".tab")
+          .forEach(x =>
+            x.classList.remove("active")
+          );
+
+
+        document
+          .querySelectorAll(".page")
+          .forEach(x =>
+            x.classList.remove("active")
+          );
+
+
+        tab.classList.add("active");
+
+
+        $(
+          tab.dataset.page
+        ).classList.add("active");
+
+      }
+    );
 
   });
 
 
-  /* STATS */
 
-  document.getElementById("totalCash").textContent =
-    money(state.totalCash);
+$("rockButton")
+  .addEventListener(
+    "click",
+    mine
+  );
 
-  document.getElementById("totalOre").textContent =
-    number(state.totalOre);
 
-  document.getElementById("clicks").textContent =
-    number(state.clicks);
 
-  document.getElementById("crits").textContent =
-    number(state.crits);
+$("sellButton")
+  .addEventListener(
+    "click",
+    sellOre
+  );
 
-  achievements();
+
+
+document
+  .querySelectorAll(".buy")
+  .forEach(btn => {
+
+    btn.addEventListener(
+      "click",
+      () =>
+        buy(
+          btn.dataset.upgrade
+        )
+    );
+
+  });
+
+
+
+$("prestigeButton")
+  .addEventListener(
+    "click",
+    prestige
+  );
+
+
+
+$("resetButton")
+  .addEventListener(
+    "click",
+    () => {
+
+      if (
+        confirm(
+          "Delete ALL mining progress? This cannot be undone."
+        )
+      ) {
+
+        state = {
+          ...defaultState,
+          lastSeen: Date.now()
+        };
+
+
+        localStorage.removeItem(
+          SAVE_KEY
+        );
+
+
+        toast(
+          "Save reset."
+        );
+
+
+        update();
+
+      }
+
+    }
+  );
+
+
+
+/* OFFLINE EARNINGS */
+
+const awaySeconds =
+  Math.min(
+    4 * 60 * 60,
+    Math.max(
+      0,
+      (Date.now() - state.lastSeen) / 1000
+    )
+  );
+
+
+if (
+  awaySeconds >= 10 &&
+  autoRate() > 0
+) {
+
+  const generated =
+    autoRate() *
+    awaySeconds;
+
+
+  const available =
+    state.ore +
+    generated;
+
+
+  const sold =
+    Math.min(
+      available,
+      conveyorRate() *
+      awaySeconds
+    );
+
+
+  state.ore =
+    available - sold;
+
+
+  state.totalOre +=
+    generated;
+
+
+  const earned =
+    sold *
+    saleMultiplier();
+
+
+  state.cash +=
+    earned;
+
+
+  state.totalCash +=
+    earned;
+
+
+  if (earned > 0) {
+
+    setTimeout(
+      () =>
+        toast(
+          "While away: earned " +
+          money(earned)
+        ),
+      400
+    );
+
+  }
+
 }
 
 
-/* ==============================
-   AUTO GAME LOOP
-============================== */
 
-let lastLoop = Date.now();
+/* GAME LOOP */
 
-setInterval(()=>{
+let lastTick =
+  performance.now();
 
-  const now = Date.now();
+
+let saveTimer = 0;
+
+
+
+function loop(now) {
 
   const dt =
     Math.min(
-      2,
-      (now-lastLoop)/1000
+      .25,
+      (now - lastTick) / 1000
     );
 
-  lastLoop = now;
+
+  lastTick = now;
+
+
 
   /* AUTO MINING */
 
   const generated =
-    autoRate()*dt;
+    autoRate() * dt;
 
-  if(generated > 0){
 
-    state.ore += generated;
-    state.totalOre += generated;
+  if (generated > 0) {
 
-    addXP(generated*.2);
+    state.ore +=
+      generated;
+
+
+    state.totalOre +=
+      generated;
+
+
+    addXP(
+      generated * .25
+    );
+
   }
 
 
-  /* CONVEYOR */
 
-  if(state.ore > 0 && conveyorRate() > 0){
+  /* AUTO SELLING */
 
-    const sold =
-      Math.min(
-        state.ore,
-        conveyorRate()*dt
-      );
+  const sold =
+    Math.min(
+      state.ore,
+      conveyorRate() * dt
+    );
 
-    state.ore -= sold;
 
-    const cash =
-      sold * salePrice();
+  if (sold > 0) {
 
-    state.cash += cash;
-    state.totalCash += cash;
+    state.ore -=
+      sold;
+
+
+    const earned =
+      sold *
+      saleMultiplier();
+
+
+    state.cash +=
+      earned;
+
+
+    state.totalCash +=
+      earned;
+
   }
+
 
 
   /* COMBO DECAY */
 
-  if(
+  if (
     state.lastClick &&
-    Date.now()-state.lastClick > 1600
-  ){
+    Date.now() -
+    state.lastClick >
+    1800
+  ) {
+
     state.combo =
       Math.max(
         1,
-        state.combo-.02
+        state.combo - .012
       );
+
   }
+
+
+
+  /* SAVE */
+
+  saveTimer += dt;
+
+
+  if (saveTimer >= 5) {
+
+    save();
+
+    saveTimer = 0;
+
+  }
+
 
   update();
 
-},100);
 
-
-/* ==============================
-   PERIODIC SAVE
-============================== */
-
-setInterval(saveGame,5000);
-
-
-/* ==============================
-   TABS
-============================== */
-
-document.querySelectorAll(".tab").forEach(tab=>{
-
-  tab.addEventListener("click",()=>{
-
-    document.querySelectorAll(".tab")
-      .forEach(t=>t.classList.remove("active"));
-
-    document.querySelectorAll(".page")
-      .forEach(p=>p.classList.remove("active"));
-
-    tab.classList.add("active");
-
-    document
-      .getElementById(tab.dataset.page)
-      .classList.add("active");
-
-  });
-
-});
-
-
-/* ==============================
-   BUTTONS
-============================== */
-
-document
-  .getElementById("rockButton")
-  .addEventListener("click",mine);
-
-document
-  .getElementById("sellBtn")
-  .addEventListener("click",sellOre);
-
-document
-  .getElementById("prestigeBtn")
-  .addEventListener("click",prestige);
-
-
-document.querySelectorAll(".buy")
-.forEach(btn=>{
-
-  btn.addEventListener(
-    "click",
-    ()=>{
-      buyUpgrade(
-        btn.dataset.upgrade
-      );
-    }
+  requestAnimationFrame(
+    loop
   );
 
-});
+}
 
 
-/* ==============================
-   RESET
-============================== */
-
-document
-  .getElementById("resetBtn")
-  .addEventListener("click",()=>{
-
-    if(!confirm(
-      "Are you sure you want to completely reset your save?"
-    )){
-      return;
-    }
-
-    localStorage.removeItem(
-      "mining-sim-save"
-    );
-
-    state =
-      {...defaultState};
-
-    toast("Save reset.");
-
-    update();
-  });
-
-
-/* ==============================
-   START
-============================== */
-
-offlineEarnings();
 
 update();
 
-saveGame();
+requestAnimationFrame(
+  loop
+);
 
 </script>
 
