@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Ember Tycoon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg-deep:#14100d;
+    --bg-panel:#221b16;
+    --bg-raised:#2e241d;
+    --bg-raised-2:#3a2c22;
+    --line:#463629;
+    --ember:#ff7a33;
+    --ember-dim:#c25a24;
+    --amber:#ffc15e;
+    --copper:#c97b4a;
+    --text:#f2e9dd;
+    --text-muted:#b8a996;
+    --ok:#6fcf7a;
+    --bad:#e1553a;
+    --shadow: 0 4px 0 rgba(0,0,0,0.45);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent; user-select:none;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, #2a1d14 0%, transparent 60%),
+      var(--bg-deep);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    overflow:hidden;
+    height:100vh;
+    display:flex;
+    flex-direction:column;
+  }
+  h1,h2,h3,.display{
+    font-family:'Big Shoulders Display', sans-serif;
+    letter-spacing:0.01em;
+    margin:0;
+  }
+
+  /* ---------- HUD ---------- */
+  #hud{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:10px 14px;
+    background:linear-gradient(180deg, var(--bg-panel), #1a1410);
+    border-bottom:3px solid var(--line);
+    z-index:20;
+    flex-shrink:0;
+  }
+  .stat{
+    display:flex;
+    align-items:center;
+    gap:8px;
+  }
+  .stat .icon{
+    width:30px;height:30px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:center;
+    border-radius:6px;
+    font-size:16px;
+  }
+  .icon.cash{background:radial-gradient(circle at 35% 30%, #ffe19a, var(--amber)); box-shadow:inset 0 -3px 0 rgba(0,0,0,0.25);}
+  .icon.ore{background:radial-gradient(circle at 35% 30%, #b7c4cf, #5c6b76); box-shadow:inset 0 -3px 0 rgba(0,0,0,0.25);}
+  .stat .num{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-size:22px;
+    font-weight:700;
+    line-height:1;
+  }
+  .stat .sub{
+    font-size:10px;
+    color:var(--text-muted);
+    margin-top:2px;
+  }
+  #saveFlash{
+    font-size:10px;
+    color:var(--text-muted);
+    opacity:0;
+    transition:opacity .4s;
+    position:absolute;
+    top:6px; right:14px;
+  }
+  #saveFlash.show{opacity:1;}
+
+  /* ---------- MAIN STAGE ---------- */
+  #stage{
+    flex:1;
+    overflow:hidden;
+    position:relative;
+  }
+  .panel{
+    position:absolute;
+    inset:0;
+    overflow-y:auto;
+    padding:16px 14px 20px;
+    display:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .panel.active{display:block;}
+
+  /* -- Mine panel -- */
+  #mine-panel{
+    display:none;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+  }
+  #mine-panel.active{display:flex;}
+  #veinWrap{
+    position:relative;
+    width:230px;
+    height:230px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:18px;
+  }
+  #vein{
+    width:190px;
+    height:190px;
+    cursor:pointer;
+    filter:drop-shadow(0 8px 18px rgba(255,122,51,0.25));
+    transition:transform .06s;
+  }
+  #vein:active{transform:scale(0.93) rotate(-2deg);}
+  .glowRing{
+    position:absolute;
+    inset:0;
+    border-radius:50%;
+    background:radial-gradient(circle, rgba(255,122,51,0.28), transparent 70%);
+    animation:pulse 2.4s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(0.92); opacity:0.7;}
+    50%{transform:scale(1.05); opacity:1;}
+  }
+  #clickPowerLabel{
+    color:var(--text-muted);
+    font-size:13px;
+    margin-bottom:2px;
+  }
+  #oreCountBig{
+    font-size:15px;
+    color:var(--amber);
+    margin-bottom:18px;
+  }
+  .float-txt{
+    position:absolute;
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:700;
+    font-size:20px;
+    color:var(--amber);
+    pointer-events:none;
+    animation:floatUp 0.9s ease-out forwards;
+    z-index:5;
+  }
+  .float-txt.crit{color:var(--ember); font-size:26px;}
+  @keyframes floatUp{
+    0%{transform:translate(-50%,0); opacity:1;}
+    100%{transform:translate(-50%,-70px); opacity:0;}
+  }
+  .chunk{
+    position:absolute;
+    width:10px;height:10px;
+    background:var(--copper);
+    border-radius:2px;
+    pointer-events:none;
+    animation:chunkFly 0.6s ease-in forwards;
+  }
+  @keyframes chunkFly{
+    0%{transform:translate(0,0) scale(1); opacity:1;}
+    100%{transform:translate(var(--dx), var(--dy)) scale(0.3); opacity:0;}
+  }
+
+  .bigBtn{
+    font-family:'Big Shoulders Display', sans-serif;
+    font-weight:700;
+    font-size:18px;
+    letter-spacing:0.02em;
+    color:#1a1410;
+    background:linear-gradient(180deg, var(--amber), var(--ember));
+    border:none;
+    border-radius:12px;
+    padding:14px 30px;
+    box-shadow:var(--shadow);
+    cursor:pointer;
+    transition:transform .05s, box-shadow .05s;
+  }
+  .bigBtn:active{transform:translateY(3px); box-shadow:0 1px 0 rgba(0,0,0,0.45);}
+  .bigBtn:disabled{
+    background:#4a4038; color:#8a7c6d; cursor:default; box-shadow:none;
+  }
+  .bigBtn.secondary{
+    background:transparent;
+    border:2px solid var(--line);
+    color:var(--text-muted);
+    box-shadow:none;
+    font-size:13px;
+    padding:8px 16px;
+    margin-top:10px;
+  }
+
+  /* -- Shop / Stats panels -- */
+  .sectionTitle{
+    font-size:22px;
+    font-weight:700;
+    margin-bottom:10px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--line);
+  }
+  .card{
+    background:linear-gradient(180deg, var(--bg-raised), var(--bg-panel));
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:10px;
+    display:flex;
+    align-items:center;
+    gap:12px;
+  }
+  .card .cicon{
+    width:44px;height:44px;flex-shrink:0;
+    border-radius:10px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:22px;
+    background:radial-gradient(circle at 35% 30%, var(--amber), var(--ember-dim));
+    box-shadow:inset 0 -3px 0 rgba(0,0,0,0.3);
+  }
+  .card .info{flex:1; min-width:0;}
+  .card .info .name{font-weight:600; font-size:15px;}
+  .card .info .desc{font-size:11.5px; color:var(--text-muted); margin-top:2px;}
+  .card .info .lvl{font-size:11px; color:var(--amber); margin-top:3px;}
+  .buyBtn{
+    font-family:'IBM Plex Sans', sans-serif;
+    font-weight:600;
+    font-size:13px;
+    color:#1a1410;
+    background:var(--amber);
+    border:none;
+    border-radius:8px;
+    padding:10px 12px;
+    min-width:78px;
+    box-shadow:0 3px 0 rgba(0,0,0,0.4);
+    cursor:pointer;
+    flex-shrink:0;
+  }
+  .buyBtn:active{transform:translateY(2px); box-shadow:0 1px 0 rgba(0,0,0,0.4);}
+  .buyBtn:disabled{background:#4a4038; color:#8a7c6d; box-shadow:none;}
+
+  .statRow{
+    display:flex;
+    justify-content:space-between;
+    padding:10px 4px;
+    border-bottom:1px solid var(--line);
+    font-size:14px;
+  }
+  .statRow .v{color:var(--amber); font-weight:600;}
+
+  #prestigeCard{
+    margin-top:18px;
+    border-color:var(--ember);
+  }
+
+  /* ---------- TAB BAR ---------- */
+  #tabbar{
+    display:flex;
+    background:linear-gradient(0deg, #1a1410, var(--bg-panel));
+    border-top:3px solid var(--line);
+    flex-shrink:0;
+    z-index:20;
+  }
+  .tab{
+    flex:1;
+    text-align:center;
+    padding:10px 0 8px;
+    cursor:pointer;
+    color:var(--text-muted);
+    font-size:11px;
+    font-weight:600;
+    border-top:3px solid transparent;
+    margin-top:-3px;
+  }
+  .tab .ticon{font-size:20px; display:block; margin-bottom:2px;}
+  .tab.active{color:var(--amber); border-top:3px solid var(--ember);}
+
+  ::-webkit-scrollbar{width:6px;}
+  ::-webkit-scrollbar-thumb{background:var(--line); border-radius:4px;}
+
+  .toast{
+    position:fixed;
+    top:64px; left:50%;
+    transform:translateX(-50%);
+    background:var(--bg-raised-2);
+    border:1px solid var(--ember);
+    color:var(--text);
+    padding:8px 16px;
+    border-radius:10px;
+    font-size:13px;
+    z-index:50;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .3s, transform .3s;
+  }
+  .toast.show{opacity:1; transform:translateX(-50%) translateY(6px);}
+</style>
+</head>
+<body>
+
+<div id="hud">
+  <div class="stat">
+    <div class="icon cash">💰</div>
+    <div>
+      <div class="num" id="cashNum">0</div>
+      <div class="sub" id="cashRate">+0/s</div>
+    </div>
+  </div>
+  <div class="stat">
+    <div>
+      <div class="num" id="oreNum" style="text-align:right;">0</div>
+      <div class="sub" id="oreRate" style="text-align:right;">+0/s</div>
+    </div>
+    <div class="icon ore">⛏️</div>
+  </div>
+  <div id="saveFlash">Saved</div>
+</div>
+
+<div id="stage">
+
+  <div id="mine-panel" class="panel active">
+    <div id="clickPowerLabel">Each strike yields <b id="clickPowerVal">1</b> ore</div>
+    <div id="veinWrap">
+      <div class="glowRing"></div>
+      <svg id="vein" viewBox="0 0 100 100">
+        <polygon points="50,6 82,26 90,60 66,92 34,92 10,60 18,26" fill="#4a3a2e" stroke="#6b5340" stroke-width="2"/>
+        <polygon points="50,18 72,32 76,58 58,80 42,80 24,58 28,32" fill="#5c483a"/>
+        <circle cx="42" cy="42" r="7" fill="#ffc15e"/>
+        <circle cx="60" cy="55" r="5" fill="#ff7a33"/>
+        <circle cx="48" cy="66" r="4" fill="#ffc15e"/>
+      </svg>
+    </div>
+    <div id="oreCountBig"><b id="oreCountBigVal">0</b> ore ready to sell</div>
+    <button class="bigBtn" id="sellAllBtn">Sell all ore</button>
+  </div>
+
+  <div id="shop-panel" class="panel">
+    <div class="sectionTitle">Upgrades</div>
+    <div id="upgradeList"></div>
+    <div class="card" id="prestigeCard">
+      <div class="cicon">🔥</div>
+      <div class="info">
+        <div class="name">Smelt Down</div>
+        <div class="desc" id="prestigeDesc">Reset your run for permanent Ember Shards that boost every sale.</div>
+        <div class="lvl" id="prestigeLvl">Shards: 0</div>
+      </div>
+      <button class="buyBtn" id="prestigeBtn">Smelt</button>
+    </div>
+  </div>
+
+  <div id="stats-panel" class="panel">
+    <div class="sectionTitle">Stats</div>
+    <div class="statRow"><span>Total cash earned</span><span class="v" id="statTotalCash">0</span></div>
+    <div class="statRow"><span>Total ore mined</span><span class="v" id="statTotalOre">0</span></div>
+    <div class="statRow"><span>Times struck vein</span><span class="v" id="statClicks">0</span></div>
+    <div class="statRow"><span>Critical strikes</span><span class="v" id="statCrits">0</span></div>
+    <div class="statRow"><span>Ember Shards</span><span class="v" id="statShards">0</span></div>
+    <div class="statRow"><span>Sale multiplier</span><span class="v" id="statMult">x1.00</span></div>
+    <button class="bigBtn secondary" id="resetBtn" style="margin-top:16px;">Reset save</button>
+  </div>
+
+</div>
+
+<div id="tabbar">
+  <div class="tab active" data-tab="mine"><span class="ticon">⛏️</span>Mine</div>
+  <div class="tab" data-tab="shop"><span class="ticon">🛒</span>Shop</div>
+  <div class="tab" data-tab="stats"><span class="ticon">📊</span>Stats</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+  const SAVE_KEY = 'ember-tycoon-save-v1';
+
+  const defaultState = {
+    cash:0, ore:0,
+    pickaxeLvl:0, autoLvl:0, furnaceLvl:0, conveyorLvl:0, luckLvl:0,
+    shards:0,
+    totalCash:0, totalOre:0, clicks:0, crits:0
+  };
+  let state = JSON.parse(JSON.stringify(defaultState));
+
+  const upgrades = [
+    {
+      key:'pickaxeLvl', name:'Pickaxe Power', icon:'⛏️',
+      baseCost:10, growth:1.15,
+      desc:l => `+1 ore per strike (currently ${1+l}/strike)`,
+      cost:l => Math.floor(10*Math.pow(1.15,l))
+    },
+    {
+      key:'autoLvl', name:'Drill Rig', icon:'⚙️',
+      desc:l => `Auto-mines ore over time (${(l*0.5).toFixed(1)}/s)`,
+      cost:l => Math.floor(25*Math.pow(1.17,l))
+    },
+    {
+      key:'furnaceLvl', name:'Furnace Efficiency', icon:'🔥',
+      desc:l => `Raises cash per ore sold ($${(1+l*0.15).toFixed(2)}/ore)`,
+      cost:l => Math.floor(50*Math.pow(1.2,l))
+    },
+    {
+      key:'conveyorLvl', name:'Conveyor Belt', icon:'🔗',
+      desc:l => l===0 ? 'Unlocks automatic selling of stored ore' : `Auto-sells ${(Math.min(l*2,50))}% of ore per second`,
+      cost:l => Math.floor(100*Math.pow(1.25,l))
+    },
+    {
+      key:'luckLvl', name:'Lucky Vein', icon:'🍀',
+      desc:l => `${Math.min(l*2,50)}% chance to strike for x5 ore`,
+      cost:l => Math.floor(75*Math.pow(1.18,l))
+    }
+  ];
+
+  function fmt(n){
+    if(n>=1e12) return (n/1e12).toFixed(2)+'T';
+    if(n>=1e9) return (n/1e9).toFixed(2)+'B';
+    if(n>=1e6) return (n/1e6).toFixed(2)+'M';
+    if(n>=1e3) return (n/1e3).toFixed(2)+'K';
+    return Math.floor(n).toString();
+  }
+
+  function clickPower(){ return 1+state.pickaxeLvl; }
+  function autoRate(){ return state.autoLvl*0.5; }
+  function sellPrice(){ return (1+state.furnaceLvl*0.15) * saleMultiplier(); }
+  function saleMultiplier(){ return 1 + state.shards*0.10; }
+  function conveyorRate(){ return Math.min(state.conveyorLvl*0.02, 0.5); }
+  function critChance(){ return Math.min(state.luckLvl*0.02, 0.5); }
+
+  const $ = id => document.getElementById(id);
+
+  function showToast(msg){
+    const t = $('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._t);
+    showToast._t = setTimeout(()=>t.classList.remove('show'), 1400);
+  }
+
+  function buy(u){
+    const lvl = state[u.key];
+    const cost = u.cost(lvl);
+    if(state.cash < cost) return;
+    state.cash -= cost;
+    state[u.key] = lvl+1;
+    showToast(u.name+' upgraded!');
+    renderAll();
+    save();
+  }
+
+  function renderUpgrades(){
+    const list = $('upgradeList');
+    list.innerHTML = '';
+    upgrades.forEach(u=>{
+      const lvl = state[u.key];
+      const cost = u.cost(lvl);
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        <div class="cicon">${u.icon}</div>
+        <div class="info">
+          <div class="name">${u.name}</div>
+          <div class="desc">${u.desc(lvl)}</div>
+          <div class="lvl">Level ${lvl}</div>
+        </div>
+        <button class="buyBtn" ${state.cash<cost?'disabled':''}>$${fmt(cost)}</button>
+      `;
+      card.querySelector('button').addEventListener('click', ()=>buy(u));
+      list.appendChild(card);
+    });
+  }
+
+  function renderHUD(){
+    $('cashNum').textContent = '$'+fmt(state.cash);
+    $('oreNum').textContent = fmt(state.ore);
+    $('cashRate').textContent = '+$'+fmt(autoRate()*sellPrice()*conveyorRate())+'/s';
+    $('oreRate').textContent = '+'+fmt(autoRate())+'/s';
+    $('clickPowerVal').textContent = fmt(clickPower());
+    $('oreCountBigVal').textContent = fmt(state.ore);
+    $('sellAllBtn').disabled = state.ore <= 0;
+  }
+
+  function renderStats(){
+    $('statTotalCash').textContent = '$'+fmt(state.totalCash);
+    $('statTotalOre').textContent = fmt(state.totalOre);
+    $('statClicks').textContent = fmt(state.clicks);
+    $('statCrits').textContent = fmt(state.crits);
+    $('statShards').textContent = fmt(state.shards);
+    $('statMult').textContent = 'x'+saleMultiplier().toFixed(2);
+  }
+
+  function renderPrestige(){
+    const potential = Math.floor(Math.sqrt(state.totalCash/50000));
+    $('prestigeLvl').textContent = `Shards: ${state.shards}  •  Smelting now grants +${potential}`;
+    $('prestigeBtn').disabled = potential < 1;
+  }
+
+  function renderAll(){
+    renderHUD();
+    renderUpgrades();
+    renderStats();
+    renderPrestige();
+  }
+
+  // ---- Mining click ----
+  $('vein').addEventListener('click', (e)=>{
+    let gain = clickPower();
+    let crit = false;
+    if(Math.random() < critChance()){
+      gain *= 5;
+      crit = true;
+      state.crits++;
+    }
+    state.ore += gain;
+    state.totalOre += gain;
+    state.clicks++;
+
+    const wrap = $('veinWrap');
+    const rect = wrap.getBoundingClientRect();
+    const ft = document.createElement('div');
+    ft.className = 'float-txt'+(crit?' crit':'');
+    ft.textContent = (crit?'CRIT! ':'+')+fmt(gain);
+    ft.style.left = (rect.width/2)+'px';
+    ft.style.top = (rect.height/2 - 20)+'px';
+    wrap.appendChild(ft);
+    ft.addEventListener('animationend', ()=>ft.remove());
+
+    for(let i=0;i<5;i++){
+      const c = document.createElement('div');
+      c.className = 'chunk';
+      const ang = Math.random()*Math.PI*2;
+      const dist = 40+Math.random()*40;
+      c.style.setProperty('--dx', (Math.cos(ang)*dist)+'px');
+      c.style.setProperty('--dy', (Math.sin(ang)*dist - 30)+'px');
+      c.style.left = (rect.width/2)+'px';
+      c.style.top = (rect.height/2)+'px';
+      wrap.appendChild(c);
+      c.addEventListener('animationend', ()=>c.remove());
+    }
+
+    renderHUD();
+  });
+
+  $('sellAllBtn').addEventListener('click', ()=>{
+    if(state.ore<=0) return;
+    const revenue = state.ore * sellPrice();
+    state.cash += revenue;
+    state.totalCash += revenue;
+    state.ore = 0;
+    showToast('Sold for $'+fmt(revenue));
+    renderHUD();
+    save();
+  });
+
+  $('prestigeBtn').addEventListener('click', ()=>{
+    const potential = Math.floor(Math.sqrt(state.totalCash/50000));
+    if(potential < 1) return;
+    state.shards += potential;
+    const keepShards = state.shards, keepTotalCash = state.totalCash, keepTotalOre = state.totalOre, keepClicks = state.clicks, keepCrits = state.crits;
+    state = JSON.parse(JSON.stringify(defaultState));
+    state.shards = keepShards;
+    state.totalCash = keepTotalCash;
+    state.totalOre = keepTotalOre;
+    state.clicks = keepClicks;
+    state.crits = keepCrits;
+    showToast('Smelted down! Sale multiplier now x'+saleMultiplier().toFixed(2));
+    renderAll();
+    save();
+  });
+
+  $('resetBtn').addEventListener('click', ()=>{
+    if(!confirm('Reset all progress? This cannot be undone.')) return;
+    state = JSON.parse(JSON.stringify(defaultState));
+    renderAll();
+    save();
+  });
+
+  // ---- Tabs ----
+  document.querySelectorAll('.tab').forEach(tab=>{
+    tab.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+      document.querySelectorAll('.panel').forEach(p=>p.classList.remove('active'));
+      tab.classList.add('active');
+      $(tab.dataset.tab+'-panel').classList.add('active');
+      if(tab.dataset.tab==='shop') renderUpgrades();
+      if(tab.dataset.tab==='stats'){ renderStats(); renderPrestige(); }
+    });
+  });
+
+  // ---- Game loop ----
+  let last = Date.now();
+  setInterval(()=>{
+    const now = Date.now();
+    const dt = (now-last)/1000;
+    last = now;
+
+    const gained = autoRate()*dt;
+    if(gained>0){
+      state.ore += gained;
+      state.totalOre += gained;
+    }
+    const rate = conveyorRate();
+    if(rate>0 && state.ore>0){
+      const sold = state.ore * rate * dt;
+      const revenue = sold * sellPrice();
+      state.ore -= sold;
+      state.cash += revenue;
+      state.totalCash += revenue;
+    }
+    renderHUD();
+  }, 200);
+
+  // ---- Persistence ----
+  async function save(){
+    try{
+      await window.storage.set(SAVE_KEY, JSON.stringify(state), false);
+      const f = $('saveFlash');
+      f.classList.add('show');
+      setTimeout(()=>f.classList.remove('show'), 700);
+    }catch(err){
+      console.warn('save failed', err);
+    }
+  }
+
+  async function load(){
+    try{
+      const res = await window.storage.get(SAVE_KEY, false);
+      if(res && res.value){
+        const loaded = JSON.parse(res.value);
+        state = Object.assign(JSON.parse(JSON.stringify(defaultState)), loaded);
+        showToast('Welcome back!');
+      }
+    }catch(err){
+      // no save yet, start fresh
+    }
+    renderAll();
+  }
+
+  setInterval(save, 8000);
+  load();
+})();
+</script>
+</body>
+</html>
