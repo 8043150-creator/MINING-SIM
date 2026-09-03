@@ -1,889 +1,761 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Mining Sim</title>
+  <title>MINING SIM</title>
 
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@400;500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-html {
-    scroll-behavior: smooth;
-}
-
-body {
-    background: #090706;
-    color: white;
-    font-family: "IBM Plex Sans", sans-serif;
-    overflow-x: hidden;
-}
-
-/* BACKGROUND */
-
-.background {
-    position: fixed;
-    inset: 0;
-    z-index: -5;
-    background:
-        radial-gradient(circle at 50% 55%,
-        rgba(255, 91, 20, .25),
-        transparent 35%),
-        linear-gradient(
-        to bottom,
-        #050505 0%,
-        #0d0907 55%,
-        #1b0c05 100%
-    );
-}
-
-.background::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    background:
-        radial-gradient(circle, rgba(255,120,40,.5) 1px, transparent 2px);
-    background-size: 110px 110px;
-    opacity: .18;
-    animation: moveStars 12s linear infinite;
-}
-
-@keyframes moveStars {
-    from {
-        transform: translateY(0);
+  <style>
+    :root {
+      --bg: #0d0a08;
+      --bg2: #17100c;
+      --panel: #21160f;
+      --panel2: #2a1b12;
+      --orange: #ff762f;
+      --orange2: #ff9b4a;
+      --yellow: #ffd166;
+      --text: #fff5e8;
+      --muted: #a99584;
+      --border: rgba(255, 130, 55, 0.18);
     }
 
-    to {
-        transform: translateY(-110px);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-}
 
-/* EMBERS */
+    html {
+      scroll-behavior: smooth;
+    }
 
-.ember {
-    position: fixed;
-    width: 4px;
-    height: 4px;
-    border-radius: 50%;
-    background: #ff8b38;
-    box-shadow: 0 0 15px #ff5a16;
-    animation: rise 7s linear infinite;
-    z-index: -1;
-}
+    body {
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 50% 20%, rgba(255, 105, 35, 0.13), transparent 35%),
+        radial-gradient(circle at 20% 80%, rgba(255, 145, 55, 0.06), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: "IBM Plex Sans", sans-serif;
+      overflow-x: hidden;
+    }
 
-.e1 { left: 10%; bottom: -10px; animation-delay: 0s; }
-.e2 { left: 25%; bottom: -10px; animation-delay: 2s; }
-.e3 { left: 40%; bottom: -10px; animation-delay: 4s; }
-.e4 { left: 60%; bottom: -10px; animation-delay: 1s; }
-.e5 { left: 75%; bottom: -10px; animation-delay: 3s; }
-.e6 { left: 90%; bottom: -10px; animation-delay: 5s; }
+    /* ---------------- BACKGROUND ---------------- */
 
-@keyframes rise {
-    0% {
-        transform: translateY(0);
+    .background {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: -1;
+    }
+
+    .glow {
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: rgba(255, 91, 25, 0.08);
+      filter: blur(100px);
+      animation: floatGlow 8s ease-in-out infinite alternate;
+    }
+
+    .glow.one {
+      top: -200px;
+      left: -150px;
+    }
+
+    .glow.two {
+      bottom: -250px;
+      right: -150px;
+      animation-delay: 2s;
+    }
+
+    @keyframes floatGlow {
+      from {
+        transform: translate(0, 0);
+      }
+      to {
+        transform: translate(50px, 30px);
+      }
+    }
+
+    .embers {
+      position: absolute;
+      inset: 0;
+    }
+
+    .ember {
+      position: absolute;
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--orange2);
+      opacity: 0;
+      animation: rise 5s linear infinite;
+    }
+
+    .ember:nth-child(1) { left: 8%; animation-delay: 0s; }
+    .ember:nth-child(2) { left: 18%; animation-delay: 2s; }
+    .ember:nth-child(3) { left: 31%; animation-delay: 1s; }
+    .ember:nth-child(4) { left: 44%; animation-delay: 3s; }
+    .ember:nth-child(5) { left: 57%; animation-delay: 1.5s; }
+    .ember:nth-child(6) { left: 69%; animation-delay: 4s; }
+    .ember:nth-child(7) { left: 81%; animation-delay: 2.5s; }
+    .ember:nth-child(8) { left: 93%; animation-delay: .5s; }
+
+    @keyframes rise {
+      0% {
+        bottom: -20px;
         opacity: 0;
+        transform: translateX(0);
+      }
+      15% {
+        opacity: .8;
+      }
+      80% {
+        opacity: .35;
+      }
+      100% {
+        bottom: 110%;
+        opacity: 0;
+        transform: translateX(35px);
+      }
     }
 
-    15% {
+    /* ---------------- NAV ---------------- */
+
+    nav {
+      height: 76px;
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 6%;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      background: rgba(13,10,8,.72);
+      backdrop-filter: blur(14px);
+      position: relative;
+      z-index: 10;
+    }
+
+    .logo {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: 2px;
+    }
+
+    .logo span {
+      color: var(--orange);
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: .2s;
+    }
+
+    .nav-links a:hover {
+      color: white;
+    }
+
+    /* ---------------- HERO ---------------- */
+
+    .hero {
+      min-height: calc(100vh - 76px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 20px 100px;
+      position: relative;
+    }
+
+    .hero-content {
+      max-width: 950px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      padding: 8px 14px;
+      border: 1px solid var(--border);
+      border-radius: 999px;
+      background: rgba(255, 118, 47, .06);
+      color: var(--orange2);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      background: var(--orange);
+      border-radius: 50%;
+      box-shadow: 0 0 12px var(--orange);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% {
+        transform: scale(1);
         opacity: 1;
+      }
+      50% {
+        transform: scale(.65);
+        opacity: .5;
+      }
     }
-
-    100% {
-        transform: translateY(-600px) translateX(80px);
-        opacity: 0;
-    }
-}
-
-/* NAVBAR */
-
-nav {
-    height: 80px;
-    width: 100%;
-    padding: 0 6%;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-
-    position: absolute;
-    top: 0;
-    z-index: 10;
-
-    background: linear-gradient(
-        to bottom,
-        rgba(0,0,0,.7),
-        transparent
-    );
-}
-
-.logo {
-    text-decoration: none;
-    color: white;
-
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 30px;
-    font-weight: 800;
-    letter-spacing: 1px;
-}
-
-.logo span {
-    color: #ff7628;
-}
-
-.navlinks {
-    display: flex;
-    gap: 35px;
-}
-
-.navlinks a {
-    color: #c8beb7;
-    text-decoration: none;
-    text-transform: uppercase;
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 1px;
-}
-
-.navlinks a:hover {
-    color: #ff9b42;
-}
-
-.top-button {
-    text-decoration: none;
-    color: white;
-    border: 1px solid #ff7628;
-    padding: 11px 18px;
-    border-radius: 6px;
-    font-size: 13px;
-    font-weight: 700;
-    transition: .25s;
-}
-
-.top-button:hover {
-    background: #ff7628;
-    color: #180b04;
-}
-
-/* HERO */
-
-.hero {
-    min-height: 800px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-
-    text-align: center;
-    padding: 100px 20px 60px;
-
-    position: relative;
-}
-
-/* ROCKS */
-
-.rock {
-    position: absolute;
-    background: #17110d;
-    border: 2px solid #302018;
-    box-shadow:
-        inset 0 0 35px #000,
-        0 20px 50px #000;
-}
-
-.rock.left {
-    width: 350px;
-    height: 220px;
-    left: -100px;
-    bottom: 40px;
-    transform: rotate(-12deg);
-    border-radius: 50%;
-}
-
-.rock.right {
-    width: 370px;
-    height: 230px;
-    right: -100px;
-    bottom: 35px;
-    transform: rotate(13deg);
-    border-radius: 50%;
-}
-
-/* CRYSTALS */
-
-.crystal {
-    position: absolute;
-    width: 45px;
-    height: 90px;
-
-    background: linear-gradient(
-        135deg,
-        #ffe58a,
-        #ff7b22 55%,
-        #9b2507
-    );
-
-    clip-path: polygon(
-        50% 0,
-        100% 30%,
-        75% 100%,
-        25% 90%,
-        0 30%
-    );
-
-    filter: drop-shadow(
-        0 0 18px rgba(255,100,20,.9)
-    );
-
-    animation: glow 2s infinite alternate;
-}
-
-.crystal.one {
-    left: 14%;
-    bottom: 160px;
-    transform: rotate(-10deg);
-}
-
-.crystal.two {
-    right: 14%;
-    bottom: 200px;
-    transform: rotate(15deg) scale(1.3);
-}
-
-.crystal.three {
-    left: 25%;
-    bottom: 70px;
-    transform: scale(.65);
-}
-
-@keyframes glow {
-    from {
-        filter: drop-shadow(0 0 7px rgba(255,100,20,.5));
-    }
-
-    to {
-        filter: drop-shadow(0 0 28px rgba(255,120,20,1));
-    }
-}
-
-/* HERO CONTENT */
-
-.hero-content {
-    max-width: 900px;
-    position: relative;
-    z-index: 2;
-}
-
-.small-title {
-    color: #ff7628;
-    font-size: 14px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 5px;
-    margin-bottom: 20px;
-}
-
-h1 {
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: clamp(85px, 15vw, 180px);
-    font-weight: 800;
-    line-height: .75;
-
-    text-transform: uppercase;
-
-    text-shadow:
-        0 6px 0 #342820,
-        0 15px 35px rgba(0,0,0,.8);
-}
-
-h1 span {
-    color: #ff7628;
-
-    text-shadow:
-        0 5px 0 #762b09,
-        0 0 35px rgba(255,90,20,.4);
-}
-
-.tagline {
-    margin-top: 32px;
-
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 27px;
-    font-weight: 800;
-    letter-spacing: 4px;
-}
-
-.description {
-    max-width: 600px;
-    margin: 15px auto 30px;
-
-    color: #afa39b;
-    line-height: 1.7;
-}
-
-/* START BUTTON */
-
-.start-button {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 14px;
-
-    min-width: 330px;
-    padding: 20px 40px;
-
-    border-radius: 8px;
-
-    background: linear-gradient(
-        #ffd263,
-        #ff8125
-    );
-
-    border: 2px solid #ffb94e;
-
-    color: #241006;
-
-    text-decoration: none;
-
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 30px;
-    font-weight: 800;
-    letter-spacing: 2px;
-
-    box-shadow:
-        0 0 25px rgba(255,100,20,.4),
-        0 15px 35px rgba(0,0,0,.6);
-
-    transition: .25s;
-}
-
-.start-button:hover {
-    transform: translateY(-6px) scale(1.03);
-
-    box-shadow:
-        0 0 40px rgba(255,100,20,.7),
-        0 20px 45px rgba(0,0,0,.7);
-}
-
-.click {
-    margin-top: 12px;
-    color: #887b72;
-    font-size: 12px;
-}
-
-/* STATS */
-
-.stats {
-    width: 90%;
-    max-width: 1000px;
-
-    margin: -40px auto 0;
-
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-
-    background: rgba(18,13,10,.95);
-
-    border: 1px solid #39271d;
-    border-radius: 12px;
-
-    overflow: hidden;
-
-    box-shadow: 0 20px 50px rgba(0,0,0,.6);
-}
-
-.stat {
-    padding: 25px 10px;
-    text-align: center;
-    border-right: 1px solid #39271d;
-}
-
-.stat:last-child {
-    border-right: none;
-}
-
-.stat-icon {
-    font-size: 28px;
-    margin-bottom: 8px;
-}
-
-.stat-title {
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 22px;
-    font-weight: 800;
-}
-
-.stat-text {
-    color: #887c73;
-    font-size: 11px;
-    text-transform: uppercase;
-}
-
-/* FEATURES */
-
-section {
-    padding: 110px 7%;
-}
-
-.section-title {
-    text-align: center;
-
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 55px;
-    font-weight: 800;
-
-    text-transform: uppercase;
-}
-
-.section-subtitle {
-    max-width: 550px;
-    margin: 10px auto 50px;
-
-    text-align: center;
-    color: #8e8178;
-}
-
-.features {
-    max-width: 1100px;
-    margin: auto;
-
-    display: grid;
-    grid-template-columns: repeat(4,1fr);
-
-    gap: 18px;
-}
-
-.card {
-    padding: 30px 22px;
-
-    background: linear-gradient(
-        145deg,
-        #251912,
-        #110c09
-    );
-
-    border: 1px solid #33231a;
-    border-radius: 10px;
-
-    transition: .3s;
-}
-
-.card:hover {
-    transform: translateY(-8px);
-    border-color: #ff7628;
-
-    box-shadow:
-        0 15px 35px rgba(255,90,20,.12);
-}
-
-.card-icon {
-    font-size: 40px;
-    margin-bottom: 18px;
-}
-
-.card h3 {
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: 27px;
-    color: #ffc15e;
-
-    margin-bottom: 10px;
-}
-
-.card p {
-    color: #91847c;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-/* CTA */
-
-.cta {
-    text-align: center;
-    padding: 80px 20px 130px;
-}
-
-.cta-box {
-    max-width: 900px;
-    margin: auto;
-
-    padding: 70px 25px;
-
-    border-radius: 15px;
-
-    border: 1px solid #4b2d1c;
-
-    background:
-        radial-gradient(
-            circle,
-            rgba(255,90,20,.15),
-            transparent 60%
-        ),
-        #120c08;
-
-    box-shadow: 0 25px 70px rgba(0,0,0,.6);
-}
-
-.cta h2 {
-    font-family: "Big Shoulders Display", sans-serif;
-    font-size: clamp(50px,8vw,80px);
-    line-height: .85;
-    text-transform: uppercase;
-}
-
-.cta h2 span {
-    color: #ff7628;
-}
-
-.cta p {
-    color: #8e8178;
-    margin: 20px 0 30px;
-}
-
-/* FOOTER */
-
-footer {
-    border-top: 1px solid #211813;
-
-    padding: 30px 7%;
-
-    display: flex;
-    justify-content: space-between;
-
-    color: #655b54;
-    font-size: 13px;
-}
-
-footer strong {
-    color: #a79a91;
-}
-
-/* MOBILE */
-
-@media(max-width: 800px) {
-
-    .navlinks {
-        display: none;
-    }
-
-    .stats {
-        grid-template-columns: repeat(2,1fr);
-    }
-
-    .stat:nth-child(2) {
-        border-right: none;
-    }
-
-    .features {
-        grid-template-columns: repeat(2,1fr);
-    }
-
-    section {
-        padding: 80px 5%;
-    }
-}
-
-@media(max-width: 500px) {
 
     h1 {
-        font-size: 78px;
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: clamp(80px, 15vw, 180px);
+      line-height: .78;
+      font-weight: 800;
+      letter-spacing: -2px;
+      text-transform: uppercase;
+      text-shadow:
+        0 0 40px rgba(255, 103, 37, .12),
+        0 10px 50px rgba(0,0,0,.5);
+    }
+
+    h1 span {
+      color: var(--orange);
     }
 
     .tagline {
-        font-size: 20px;
-        letter-spacing: 2px;
+      margin: 32px auto 0;
+      max-width: 650px;
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: clamp(24px, 4vw, 42px);
+      font-weight: 600;
+      letter-spacing: 3px;
+      text-transform: uppercase;
     }
 
-    .start-button {
-        min-width: 270px;
-        font-size: 24px;
-        padding: 18px 25px;
+    .description {
+      margin: 18px auto 0;
+      max-width: 580px;
+      color: var(--muted);
+      line-height: 1.7;
+      font-size: 16px;
     }
 
-    .features {
-        grid-template-columns: 1fr;
+    /* ---------------- BUTTON ---------------- */
+
+    .play-button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 13px;
+      margin-top: 38px;
+      min-width: 250px;
+      padding: 19px 32px;
+      border-radius: 10px;
+      border: 2px solid var(--orange);
+      background: linear-gradient(135deg, #ff7a32, #e85219);
+      color: white;
+      text-decoration: none;
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: 25px;
+      font-weight: 800;
+      letter-spacing: 2px;
+      box-shadow:
+        0 0 35px rgba(255, 102, 37, .22),
+        inset 0 1px rgba(255,255,255,.2);
+      transition: transform .2s, box-shadow .2s, filter .2s;
     }
+
+    .play-button:hover {
+      transform: translateY(-4px) scale(1.02);
+      filter: brightness(1.1);
+      box-shadow:
+        0 0 50px rgba(255, 102, 37, .4),
+        0 15px 35px rgba(0,0,0,.3);
+    }
+
+    .play-button:active {
+      transform: translateY(0) scale(.98);
+    }
+
+    .arrow {
+      font-size: 25px;
+      transition: transform .2s;
+    }
+
+    .play-button:hover .arrow {
+      transform: translateX(5px);
+    }
+
+    /* ---------------- STATS ---------------- */
+
+    .hero-stats {
+      margin: 70px auto 0;
+      max-width: 650px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      background: rgba(255,255,255,.025);
+      overflow: hidden;
+    }
+
+    .stat {
+      padding: 20px;
+      border-right: 1px solid var(--border);
+    }
+
+    .stat:last-child {
+      border-right: none;
+    }
+
+    .stat-number {
+      display: block;
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--orange2);
+    }
+
+    .stat-label {
+      display: block;
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    /* ---------------- SECTIONS ---------------- */
+
+    section {
+      padding: 100px 6%;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 55px;
+    }
+
+    .section-title h2 {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: 55px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .section-title p {
+      margin-top: 8px;
+      color: var(--muted);
+    }
+
+    .cards {
+      max-width: 1100px;
+      margin: auto;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .card {
+      padding: 30px;
+      background: linear-gradient(145deg, rgba(42,27,18,.9), rgba(24,15,10,.9));
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      transition: transform .2s, border-color .2s;
+    }
+
+    .card:hover {
+      transform: translateY(-6px);
+      border-color: rgba(255,118,47,.45);
+    }
+
+    .card-icon {
+      width: 55px;
+      height: 55px;
+      display: grid;
+      place-items: center;
+      border-radius: 12px;
+      background: rgba(255,118,47,.1);
+      border: 1px solid var(--border);
+      font-size: 27px;
+      margin-bottom: 20px;
+    }
+
+    .card h3 {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: 27px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .card p {
+      margin-top: 10px;
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 14px;
+    }
+
+    /* ---------------- HOW TO PLAY ---------------- */
+
+    .steps {
+      max-width: 900px;
+      margin: auto;
+      display: grid;
+      gap: 14px;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      padding: 22px;
+      background: rgba(255,255,255,.025);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 45px;
+      height: 45px;
+      display: grid;
+      place-items: center;
+      border-radius: 10px;
+      background: var(--orange);
+      color: white;
+      font-family: "Big Shoulders Display", sans-serif;
+      font-weight: 800;
+      font-size: 23px;
+    }
+
+    .step h3 {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: 23px;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      color: var(--muted);
+      margin-top: 3px;
+      font-size: 14px;
+    }
+
+    /* ---------------- CTA ---------------- */
+
+    .final-cta {
+      text-align: center;
+      padding: 120px 20px;
+      background:
+        radial-gradient(circle at center, rgba(255,91,25,.12), transparent 45%);
+    }
+
+    .final-cta h2 {
+      font-family: "Big Shoulders Display", sans-serif;
+      font-size: clamp(55px, 8vw, 100px);
+      line-height: .9;
+      text-transform: uppercase;
+    }
+
+    .final-cta h2 span {
+      color: var(--orange);
+    }
+
+    .final-cta p {
+      color: var(--muted);
+      margin-top: 18px;
+    }
+
+    /* ---------------- FOOTER ---------------- */
 
     footer {
-        flex-direction: column;
-        text-align: center;
-        gap: 10px;
+      padding: 30px 6%;
+      border-top: 1px solid rgba(255,255,255,.06);
+      text-align: center;
+      color: #756557;
+      font-size: 13px;
     }
-}
-</style>
+
+    footer strong {
+      color: var(--orange2);
+    }
+
+    /* ---------------- MOBILE ---------------- */
+
+    @media (max-width: 750px) {
+
+      nav {
+        padding: 0 20px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 65px;
+      }
+
+      h1 {
+        font-size: clamp(70px, 22vw, 120px);
+      }
+
+      .tagline {
+        font-size: 27px;
+      }
+
+      .description {
+        font-size: 14px;
+      }
+
+      .hero-stats {
+        grid-template-columns: 1fr;
+      }
+
+      .stat {
+        border-right: none;
+        border-bottom: 1px solid var(--border);
+      }
+
+      .stat:last-child {
+        border-bottom: none;
+      }
+
+      .cards {
+        grid-template-columns: 1fr;
+      }
+
+      section {
+        padding: 75px 20px;
+      }
+
+      .section-title h2 {
+        font-size: 45px;
+      }
+
+      .step {
+        align-items: flex-start;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="background"></div>
+  <!-- Background effects -->
+  <div class="background">
+    <div class="glow one"></div>
+    <div class="glow two"></div>
 
-<div class="ember e1"></div>
-<div class="ember e2"></div>
-<div class="ember e3"></div>
-<div class="ember e4"></div>
-<div class="ember e5"></div>
-<div class="ember e6"></div>
+    <div class="embers">
+      <div class="ember"></div>
+      <div class="ember"></div>
+      <div class="ember"></div>
+      <div class="ember"></div>
+      <div class="ember"></div>
+      <div class="ember"></div>
+      <div class="ember"></div>
+      <div class="ember"></div>
+    </div>
+  </div>
 
 
-<!-- NAVIGATION -->
-
-<nav>
-
-    <a href="#" class="logo">
-        ⛏️ MINING <span>SIM</span>
-    </a>
-
-    <div class="navlinks">
-        <a href="#">Home</a>
-        <a href="#features">Features</a>
-        <a href="#how">How To Play</a>
+  <!-- Navigation -->
+  <nav>
+    <div class="logo">
+      MINING<span>SIM</span>
     </div>
 
-    <a href="game.html" class="top-button">
-        PLAY GAME
-    </a>
+    <ul class="nav-links">
+      <li><a href="#features">FEATURES</a></li>
+      <li><a href="#how">HOW TO PLAY</a></li>
+      <li><a href="#play">PLAY</a></li>
+    </ul>
+  </nav>
 
-</nav>
 
+  <!-- Hero -->
+  <main>
 
-<!-- HERO -->
+    <section class="hero" id="play">
+      <div class="hero-content">
 
-<section class="hero">
-
-    <div class="rock left"></div>
-    <div class="rock right"></div>
-
-    <div class="crystal one"></div>
-    <div class="crystal two"></div>
-    <div class="crystal three"></div>
-
-    <div class="hero-content">
-
-        <div class="small-title">
-            Welcome to the mine
+        <div class="eyebrow">
+          <div class="eyebrow-dot"></div>
+          THE MINE IS OPEN
         </div>
 
         <h1>
-            MINING
-            <span>SIM</span>
+          MINING<br>
+          <span>SIM</span>
         </h1>
 
         <div class="tagline">
-            MINE. UPGRADE. GET RICH.
+          MINE. UPGRADE. GET RICH.
         </div>
 
         <p class="description">
-            Dig deep, collect valuable ore, upgrade your equipment,
-            and build your mining empire.
+          Start with nothing. Mine ore, earn cash, upgrade your equipment,
+          unlock powerful machines, and build the ultimate mining operation.
         </p>
 
-        <!-- THIS OPENS THE GAME -->
-
-        <a href="game.html" class="start-button">
-            ⛏️ START MINING
+        <!-- IMPORTANT: THIS OPENS THE GAME -->
+        <a href="game.html" class="play-button">
+          START MINING
+          <span class="arrow">→</span>
         </a>
 
-        <div class="click">
-            Click to enter the mine
+        <div class="hero-stats">
+
+          <div class="stat">
+            <span class="stat-number">⛏</span>
+            <span class="stat-label">Mine Ore</span>
+          </div>
+
+          <div class="stat">
+            <span class="stat-number">↑</span>
+            <span class="stat-label">Upgrade</span>
+          </div>
+
+          <div class="stat">
+            <span class="stat-number">💰</span>
+            <span class="stat-label">Get Rich</span>
+          </div>
+
         </div>
 
-    </div>
-
-</section>
-
-
-<!-- STATS -->
-
-<div class="stats">
-
-    <div class="stat">
-        <div class="stat-icon">⛏️</div>
-        <div class="stat-title">MINE</div>
-        <div class="stat-text">Dig for ore</div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-icon">💎</div>
-        <div class="stat-title">COLLECT</div>
-        <div class="stat-text">Find resources</div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-icon">⬆️</div>
-        <div class="stat-title">UPGRADE</div>
-        <div class="stat-text">Get stronger</div>
-    </div>
-
-    <div class="stat">
-        <div class="stat-icon">🔥</div>
-        <div class="stat-title">PRESTIGE</div>
-        <div class="stat-text">Start again stronger</div>
-    </div>
-
-</div>
+      </div>
+    </section>
 
 
-<!-- FEATURES -->
+    <!-- Features -->
+    <section id="features">
 
-<section id="features">
+      <div class="section-title">
+        <h2>Build Your Empire</h2>
+        <p>Every upgrade takes you deeper into the mine.</p>
+      </div>
 
-    <h2 class="section-title">
-        Become A Mining Tycoon
-    </h2>
-
-    <p class="section-subtitle">
-        Start with nothing and build your fortune one piece of ore at a time.
-    </p>
-
-    <div class="features">
+      <div class="cards">
 
         <div class="card">
-            <div class="card-icon">⛏️</div>
-
-            <h3>Mine</h3>
-
-            <p>
-                Break ore and collect resources from deep inside the mine.
-            </p>
+          <div class="card-icon">⛏️</div>
+          <h3>Mine Ore</h3>
+          <p>
+            Click the vein and break through the rock. Every hit earns
+            valuable ore that can be turned into cash.
+          </p>
         </div>
-
 
         <div class="card">
-            <div class="card-icon">💎</div>
-
-            <h3>Collect</h3>
-
-            <p>
-                Gather valuable ore and turn your hard work into cash.
-            </p>
+          <div class="card-icon">⚙️</div>
+          <h3>Upgrade</h3>
+          <p>
+            Improve your pickaxe, drill rig, furnace, conveyor belt,
+            and luck to become a mining machine.
+          </p>
         </div>
-
 
         <div class="card">
-            <div class="card-icon">⚙️</div>
-
-            <h3>Upgrade</h3>
-
-            <p>
-                Spend your earnings on powerful upgrades to mine faster.
-            </p>
+          <div class="card-icon">🔥</div>
+          <h3>Go Deeper</h3>
+          <p>
+            Keep mining, level up, hit critical strikes, earn achievements,
+            and push your operation further.
+          </p>
         </div>
 
+      </div>
 
-        <div class="card">
-            <div class="card-icon">🔥</div>
+    </section>
 
-            <h3>Prestige</h3>
 
-            <p>
-                Reset your progress and come back stronger than ever.
-            </p>
+    <!-- How to play -->
+    <section id="how">
+
+      <div class="section-title">
+        <h2>How To Play</h2>
+        <p>Three simple steps. Unlimited mining.</p>
+      </div>
+
+      <div class="steps">
+
+        <div class="step">
+          <div class="step-number">1</div>
+
+          <div>
+            <h3>Start Mining</h3>
+            <p>Click the ore vein to collect ore.</p>
+          </div>
         </div>
 
-    </div>
+        <div class="step">
+          <div class="step-number">2</div>
 
-</section>
-
-
-<!-- HOW TO PLAY -->
-
-<section id="how">
-
-    <h2 class="section-title">
-        How To Play
-    </h2>
-
-    <p class="section-subtitle">
-        Three simple steps stand between you and a mining fortune.
-    </p>
-
-    <div class="features">
-
-        <div class="card">
-
-            <div class="card-icon">1️⃣</div>
-
-            <h3>START MINING</h3>
-
-            <p>
-                Enter the mine and start collecting ore.
-            </p>
-
+          <div>
+            <h3>Make Money</h3>
+            <p>Sell your ore and use the cash to improve your operation.</p>
+          </div>
         </div>
 
+        <div class="step">
+          <div class="step-number">3</div>
 
-        <div class="card">
-
-            <div class="card-icon">2️⃣</div>
-
-            <h3>SELL & UPGRADE</h3>
-
-            <p>
-                Sell your ore and use the money to upgrade your mining power.
-            </p>
-
+          <div>
+            <h3>Become A Mining Legend</h3>
+            <p>Unlock upgrades, level up, earn shards, and keep getting richer.</p>
+          </div>
         </div>
 
+      </div>
 
-        <div class="card">
-
-            <div class="card-icon">3️⃣</div>
-
-            <h3>PRESTIGE</h3>
-
-            <p>
-                Reach the next level and prestige to continue your journey.
-            </p>
-
-        </div>
-
-    </div>
-
-</section>
+    </section>
 
 
-<!-- FINAL BUTTON -->
+    <!-- Final CTA -->
+    <section class="final-cta">
 
-<section class="cta">
+      <h2>
+        READY TO<br>
+        <span>MINE?</span>
+      </h2>
 
-    <div class="cta-box">
+      <p>
+        Your first vein is waiting.
+      </p>
 
-        <h2>
-            READY TO<br>
-            <span>GET RICH?</span>
-        </h2>
+      <a href="game.html" class="play-button">
+        PLAY NOW
+        <span class="arrow">→</span>
+      </a>
 
-        <p>
-            The mine is waiting for you.
-        </p>
+    </section>
 
-        <a href="game.html" class="start-button">
-            ⛏️ START MINING
-        </a>
-
-    </div>
-
-</section>
+  </main>
 
 
-<!-- FOOTER -->
-
-<footer>
-
-    <div>
-        ⛏️ <strong>MINING SIM</strong>
-    </div>
-
-    <div>
-        © 2026 Mining Sim
-    </div>
-
-</footer>
+  <!-- Footer -->
+  <footer>
+    <strong>MINING SIM</strong> — Mine. Upgrade. Get Rich.
+  </footer>
 
 </body>
 </html>
