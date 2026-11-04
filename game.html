@@ -4,761 +4,634 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mining Simulator - Deep Earth</title>
+<title>Deep Earth 3D Mining Simulator</title>
 <style>
-:root {
-  --bg:#101116;--panel:#191b23;--panel2:#20232d;
-  --orange:#ff9d36;--gold:#ffd166;--text:#f4f4f5;
-  --muted:#999eac;--green:#55d68b;--red:#ff6565;
-  --border:#303440;
-}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--text);font-family:Arial,sans-serif}
-button{font:inherit;cursor:pointer}
-.topbar{background:#171920;border-bottom:1px solid var(--border);padding:15px 4%;display:flex;justify-content:space-between;align-items:center;gap:15px;flex-wrap:wrap}
-.logo{font-size:23px;font-weight:900;color:var(--orange);letter-spacing:1px}
-.logo span{color:white}
-.resources{display:flex;gap:9px;flex-wrap:wrap}
-.resource{background:#242731;padding:9px 13px;border-radius:9px;font-size:13px;border:1px solid var(--border)}
-.resource b{color:var(--gold)}
-.layout{max-width:1250px;margin:22px auto;padding:0 16px}
-.tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:17px}
-.tab{background:var(--panel);border:1px solid var(--border);color:#bbb;padding:12px 17px;border-radius:9px;font-weight:bold}
-.tab.active,.tab:hover{background:var(--orange);color:#171717;border-color:var(--orange)}
-.page{display:none}.page.active{display:block}
-.panel{background:var(--panel);border:1px solid var(--border);border-radius:13px;padding:18px;margin-bottom:15px}
-.panel h2,.panel h3{margin:0 0 13px}
-.muted{color:var(--muted);font-size:13px}
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px}
-.mine-layout{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:15px}
-.mine-area{text-align:center;min-height:390px;display:flex;flex-direction:column;align-items:center;justify-content:center}
-.zone-label{color:var(--gold);font-size:13px;letter-spacing:2px;font-weight:bold}
-.rock{width:210px;height:190px;margin:20px auto;border:0;background:transparent;position:relative;transition:transform .08s}
-.rock:active{transform:scale(.92)}
-.rock-shape{width:175px;height:145px;margin:auto;background:linear-gradient(145deg,#92939a,#464954 60%,#282a33);clip-path:polygon(18% 10%,65% 0,95% 25%,100% 72%,74% 100%,18% 91%,0 48%);filter:drop-shadow(0 8px 9px #0009);display:grid;place-items:center;font-size:50px}
-.rock.gold .rock-shape{background:linear-gradient(145deg,#fff0a5,#c58b27 60%,#76501b)}
-.rock.crystal .rock-shape{background:linear-gradient(145deg,#b9f8ff,#4a9ed5 60%,#24436f)}
-.rock.boss .rock-shape{background:linear-gradient(145deg,#ff7777,#872b43 60%,#42182c)}
-.healthbar{height:12px;background:#343640;border-radius:20px;overflow:hidden;width:80%;max-width:360px;margin:9px auto}
-.healthfill{height:100%;background:linear-gradient(90deg,#ff6c36,#ffd166);width:100%;transition:width .15s}
-.primary{background:var(--orange);border:0;color:#171717;padding:11px 17px;border-radius:8px;font-weight:bold}
-.secondary{background:#303440;border:1px solid #464b59;color:white;padding:10px 14px;border-radius:8px}
-.danger{background:#552c32;border:1px solid #8b444d;color:#ffb1b1;padding:10px 14px;border-radius:8px}
-.item{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:14px}
-.item h3{font-size:16px;margin:0 0 7px}
-.item p{font-size:13px;color:var(--muted);min-height:32px}
-.item button{width:100%;margin-top:10px}
-.item .price{color:var(--gold);font-weight:bold}
-.statline{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);font-size:14px}
-.progress{height:8px;background:#343640;border-radius:20px;overflow:hidden;margin-top:8px}
-.progress div{height:100%;background:var(--green)}
-.notice{background:#29251d;border:1px solid #66502c;color:#ffdb9a;padding:12px;border-radius:9px;margin-bottom:13px;font-size:13px}
-.ore-row{display:flex;justify-content:space-between;align-items:center;padding:10px;background:var(--panel2);border-radius:8px;margin:7px 0;font-size:14px}
-.rare{color:#d69aff}.common{color:#d4d7df}.epic{color:#ffad67}.legendary{color:#ffe16a}
-#toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:#282b35;border:1px solid #555b6b;padding:12px 19px;border-radius:10px;display:none;z-index:20;box-shadow:0 5px 25px #0008}
-.footer{text-align:center;color:#737987;font-size:12px;padding:20px}
-@media(max-width:750px){.mine-layout{grid-template-columns:1fr}.mine-area{min-height:350px}.rock{width:180px}.resource{font-size:12px;padding:7px}.tab{padding:10px 12px;font-size:13px}}
+body{margin:0;overflow:hidden;background:#10131b;color:#fff;font-family:Arial,sans-serif}
+canvas{display:block}
+#hud{position:fixed;inset:0;pointer-events:none;z-index:5}
+.top{position:absolute;top:12px;left:12px;right:12px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand,.stat,.panel,.action,.hint{background:#171c27eF;border:1px solid #394253;border-radius:12px;box-shadow:0 5px 20px #0005}
+.brand{padding:12px 16px;font-weight:900;color:#ffad43;letter-spacing:1px}
+.stats{display:flex;gap:8px;flex-wrap:wrap}
+.stat{padding:11px 13px;font-size:13px}
+.stat b{color:#ffd36b;margin-left:5px}
+#leftPanel{position:absolute;top:78px;left:12px;width:205px;padding:14px;pointer-events:auto}
+#rightPanel{position:absolute;top:78px;right:12px;width:205px;padding:14px;pointer-events:auto}
+.panel h3{margin:0 0 12px;color:#ffb24c}
+.small{font-size:12px;color:#aeb7c8;line-height:1.5}
+.bar{height:9px;background:#343d4d;border-radius:20px;overflow:hidden;margin:7px 0 12px}
+.bar div{height:100%;background:linear-gradient(90deg,#ff8b35,#ffd36b);width:100%}
+button{border:0;border-radius:9px;padding:11px 13px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.4;cursor:not-allowed}
+.primary{background:#ffad43;color:#171717}
+.secondary{background:#303b4d;color:#fff;border:1px solid #4b5b72}
+.action{pointer-events:auto;position:absolute;bottom:20px;left:50%;transform:translateX(-50%);padding:15px 27px;background:#ffad43;color:#171717;font-size:16px;min-width:170px}
+#message{position:absolute;top:46%;left:50%;transform:translate(-50%,-50%);font-weight:bold;text-align:center;text-shadow:0 2px 5px black;color:#fff;font-size:17px;max-width:80%}
+#toast{position:absolute;top:75px;left:50%;transform:translateX(-50%);background:#222b39;border:1px solid #59677b;padding:11px 17px;border-radius:10px;display:none}
+#crosshair{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);font-size:22px;color:#fff;text-shadow:0 2px 5px black}
+#shop{position:absolute;display:none;left:50%;top:50%;transform:translate(-50%,-50%);width:min(440px,92vw);max-height:80vh;overflow:auto;padding:20px;pointer-events:auto}
+.shopitem{padding:12px;background:#252d3b;border-radius:10px;margin:9px 0;border:1px solid #414d60}
+.shopitem p{font-size:12px;color:#abb5c5}
+#inventory{position:absolute;display:none;left:50%;top:50%;transform:translate(-50%,-50%);width:min(400px,92vw);padding:20px;pointer-events:auto}
+.oreline{display:flex;justify-content:space-between;padding:9px;border-bottom:1px solid #394253;font-size:13px}
+#mobile{display:none;position:absolute;bottom:18px;left:12px;right:12px;justify-content:space-between;align-items:end;pointer-events:auto}
+.pad{display:grid;grid-template-columns:46px 46px 46px;grid-template-rows:46px 46px;gap:4px}
+.pad button,.mobile-actions button{background:#202a39df;color:white;border:1px solid #637086;border-radius:12px}
+.pad button:nth-child(1){grid-column:2;grid-row:1}
+.pad button:nth-child(2){grid-column:1;grid-row:2}
+.pad button:nth-child(3){grid-column:2;grid-row:2}
+.pad button:nth-child(4){grid-column:3;grid-row:2}
+.mobile-actions{display:flex;flex-direction:column;gap:7px}
+.mobile-actions button{padding:13px}
+#help{position:absolute;bottom:18px;right:15px;font-size:11px;color:#d1d7e2;background:#171c27c9;padding:10px;border-radius:9px}
+#closeShop{float:right}
+@media(max-width:700px){
+ #leftPanel{top:75px;width:150px;padding:10px}
+ #rightPanel{top:75px;width:145px;padding:10px}
+ .panel h3{font-size:13px}
+ .small{font-size:10px}
+ .stat{font-size:11px;padding:8px}
+ #help{display:none}
+ #mobile{display:flex}
+ .action{bottom:125px}
+}
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="logo">⛏ DEEP <span>EARTH</span></div>
-  <div class="resources">
-    <div class="resource">💵 <b id="cash">$0</b></div>
-    <div class="resource">🪨 <b id="oreCount">0</b></div>
-    <div class="resource">⭐ Level <b id="level">1</b></div>
-    <div class="resource">💎 <b id="gems">0</b></div>
-    <div class="resource">♻️ <b id="rebirths">0</b></div>
+<div id="hud">
+ <div class="top">
+  <div class="brand">⛏ DEEP EARTH 3D</div>
+  <div class="stats">
+   <div class="stat">💵 <b id="cash">$0</b></div>
+   <div class="stat">🪨 <b id="oreCount">0</b></div>
+   <div class="stat">⭐ <b id="level">1</b></div>
+   <div class="stat">💎 <b id="gems">0</b></div>
   </div>
-</header>
+ </div>
 
-<main class="layout">
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-page="mine">⛏ Mine</button>
-    <button class="tab" data-page="shop">🛒 Shop</button>
-    <button class="tab" data-page="world">🌎 World</button>
-    <button class="tab" data-page="inventory">🎒 Inventory</button>
-    <button class="tab" data-page="craft">⚒ Crafting</button>
-    <button class="tab" data-page="skills">✨ Skills</button>
-    <button class="tab" data-page="quests">📜 Quests</button>
-    <button class="tab" data-page="stats">📊 Stats</button>
+ <div id="leftPanel" class="panel">
+  <h3>⛏ MINING STATUS</h3>
+  <div class="small">Current target</div>
+  <b id="targetName">Looking for rocks...</b>
+  <div class="bar"><div id="targetBar"></div></div>
+  <div class="small" id="targetHealth">Move near a rock to mine it.</div>
+  <hr style="border-color:#394253">
+  <div class="small">Mining power</div><b id="power">1</b>
+  <div class="small" style="margin-top:9px">Experience</div>
+  <b id="xp">0 / 50</b>
+  <div class="bar"><div id="xpBar" style="width:0%"></div></div>
+  <button class="secondary" id="inventoryButton" style="width:100%">🎒 Inventory</button>
+  <button class="secondary" id="shopButton" style="width:100%;margin-top:7px">🛒 Upgrade Shop</button>
+ </div>
+
+ <div id="rightPanel" class="panel">
+  <h3>📍 YOUR LOCATION</h3>
+  <b id="zone">Surface Mine</b>
+  <p class="small">Explore the mine, collect ores, and sell them for cash.</p>
+  <hr style="border-color:#394253">
+  <div class="small">Your objective</div>
+  <b id="objective">Collect 10 ores!</b>
+  <div class="small" style="margin-top:10px">Drones</div>
+  <b id="droneCount">0</b>
+  <div class="small" style="margin-top:10px">Sell station</div>
+  <b id="stationStatus">Find the yellow building</b>
+ </div>
+
+ <div id="crosshair">+</div>
+ <div id="message">Explore the mine and find a rock!</div>
+ <div id="toast"></div>
+ <button class="action" id="mineButton">⛏ MINE ROCK</button>
+
+ <div id="help">
+  WASD: Move · Mouse: Look<br>
+  F: Mine · E: Sell nearby<br>
+  SPACE: Jump · ESC: Release mouse
+ </div>
+
+ <div id="mobile">
+  <div class="pad">
+   <button data-move="forward">▲</button>
+   <button data-move="left">◀</button>
+   <button data-move="back">▼</button>
+   <button data-move="right">▶</button>
   </div>
+  <div class="mobile-actions">
+   <button id="mobileMine">⛏ MINE</button>
+   <button id="mobileSell">💵 SELL</button>
+   <button id="mobileJump">⬆ JUMP</button>
+  </div>
+ </div>
 
-  <section id="mine" class="page active">
-    <div id="eventBanner"></div>
-    <div class="mine-layout">
-      <div class="panel mine-area">
-        <div class="zone-label" id="zoneName">SURFACE MINE</div>
-        <h2 id="rockName">Stone Deposit</h2>
-        <div class="muted" id="rockDescription">Click the rock to mine ores!</div>
-        <button class="rock" id="rockButton" aria-label="Mine rock">
-          <div class="rock-shape" id="rockEmoji">🪨</div>
-        </button>
-        <div id="rockHealthText">100 / 100 HP</div>
-        <div class="healthbar"><div class="healthfill" id="rockHealth"></div></div>
-        <div style="margin:12px">
-          <button class="primary" id="sellButton">💵 SELL ALL ORE</button>
-          <button class="secondary" id="chestButton">🎁 Open Chest</button>
-        </div>
-        <div class="muted" id="miningPower">Mining power: 1</div>
-      </div>
-      <div>
-        <div class="panel">
-          <h2>📈 Your Progress</h2>
-          <div class="statline"><span>Experience</span><b id="xpText">0 / 50</b></div>
-          <div class="progress"><div id="xpBar" style="width:0%"></div></div>
-          <div class="statline"><span>Mining power</span><b id="powerStat">1</b></div>
-          <div class="statline"><span>Critical chance</span><b id="critStat">5%</b></div>
-          <div class="statline"><span>Ore multiplier</span><b id="multStat">1x</b></div>
-          <div class="statline"><span>Auto mining</span><b id="autoStat">0/sec</b></div>
-        </div>
-        <div class="panel">
-          <h2>🎯 Quick Missions</h2>
-          <div id="quickMissions"></div>
-        </div>
-        <div class="panel">
-          <h2>🤖 Your Drones</h2>
-          <div id="droneSummary" class="muted">No drones hired yet.</div>
-        </div>
-      </div>
-    </div>
-  </section>
+ <div id="shop" class="panel">
+  <button class="secondary" id="closeShop">✕</button>
+  <h2>🛒 Upgrade Shop</h2>
+  <p class="small">Make your mining equipment stronger.</p>
+  <div id="shopItems"></div>
+ </div>
 
-  <section id="shop" class="page">
-    <div class="panel">
-      <h2>🛒 Equipment Shop</h2>
-      <p class="muted">Upgrade your equipment to mine faster and earn more.</p>
-      <div class="grid" id="shopItems"></div>
-    </div>
-    <div class="panel">
-      <h2>🤖 Hire Mining Drones</h2>
-      <div class="grid" id="droneShop"></div>
-    </div>
-  </section>
+ <div id="inventory" class="panel">
+  <button class="secondary" id="closeInventory" style="float:right">✕</button>
+  <h2>🎒 Inventory</h2>
+  <div id="inventoryItems"></div>
+  <p class="small">Take your ores to the yellow sell station to earn cash.</p>
+ </div>
+</div>
 
-  <section id="world" class="page">
-    <div class="panel">
-      <h2>🌎 Explore Mining Zones</h2>
-      <p class="muted">Unlock new locations to discover rarer and more valuable ores.</p>
-      <div class="grid" id="zoneItems"></div>
-    </div>
-  </section>
+<script type="module">
+import * as THREE from "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js";
 
-  <section id="inventory" class="page">
-    <div class="panel">
-      <h2>🎒 Ore Inventory</h2>
-      <p class="muted">Collect ores and sell them for cash. Some ores are used for crafting.</p>
-      <div id="inventoryList"></div>
-      <button class="primary" id="sellButton2">SELL ALL ORES</button>
-    </div>
-    <div class="panel">
-      <h2>🏅 Equipment Collection</h2>
-      <div id="equipmentList"></div>
-    </div>
-  </section>
+const SAVE_KEY="deep-earth-3d-save-v1";
 
-  <section id="craft" class="page">
-    <div class="panel">
-      <h2>⚒ Crafting Workshop</h2>
-      <p class="muted">Use collected materials to make permanent upgrades.</p>
-      <div class="grid" id="craftItems"></div>
-    </div>
-  </section>
-
-  <section id="skills" class="page">
-    <div class="panel">
-      <h2>✨ Skill Tree</h2>
-      <p class="muted">Spend skill points earned from leveling up. Your skills improve your mining ability.</p>
-      <div>Available skill points: <b id="skillPoints">0</b></div>
-      <br>
-      <div class="grid" id="skillItems"></div>
-    </div>
-  </section>
-
-  <section id="quests" class="page">
-    <div class="panel">
-      <h2>📜 Missions & Challenges</h2>
-      <div id="questList"></div>
-    </div>
-    <div class="panel">
-      <h2>🏆 Achievements</h2>
-      <div id="achievementList"></div>
-    </div>
-    <div class="panel">
-      <h2>🎁 Daily Reward</h2>
-      <p id="dailyText" class="muted"></p>
-      <button class="primary" id="dailyButton">CLAIM DAILY REWARD</button>
-    </div>
-  </section>
-
-  <section id="stats" class="page">
-    <div class="panel">
-      <h2>📊 Lifetime Statistics</h2>
-      <div id="statsList"></div>
-    </div>
-    <div class="panel">
-      <h2>♻️ Rebirth</h2>
-      <p class="muted">Restart your cash, equipment, and zone progress in exchange for permanent gems and a stronger multiplier.</p>
-      <div id="rebirthInfo"></div>
-      <button class="primary" id="rebirthButton">REBIRTH</button>
-    </div>
-    <div class="panel">
-      <h2>⚙️ Settings</h2>
-      <button class="secondary" id="soundButton">🔊 Sound: ON</button>
-      <button class="secondary" id="saveButton">💾 Save Game</button>
-      <button class="danger" id="resetButton">Reset Game</button>
-    </div>
-  </section>
-</main>
-
-<div class="footer">DEEP EARTH MINING SIMULATOR • Your progress saves automatically</div>
-<div id="toast"></div>
-
-<script>
-"use strict";
-
-const SAVE_KEY = "mining-sim-deep-earth-v3";
-const OLD_SAVE_KEY = "mining-sim-deep-earth-v2";
-
-const zones = [
- {name:"Surface Mine",rock:"Stone Deposit",emoji:"🪨",hp:30,unlock:0,mult:1,desc:"A quiet place to start your mining journey."},
- {name:"Copper Caverns",rock:"Copper Vein",emoji:"🟤",hp:100,unlock:1500,mult:2,desc:"Copper veins run through these caves."},
- {name:"Crystal Caves",rock:"Crystal Cluster",emoji:"💎",hp:350,unlock:12000,mult:4,desc:"Beautiful crystals with great value."},
- {name:"Magma Core",rock:"Magma Rock",emoji:"🌋",hp:900,unlock:75000,mult:8,desc:"A dangerous-looking but valuable zone."},
- {name:"Void Depths",rock:"Void Stone",emoji:"🌌",hp:2500,unlock:400000,mult:15,desc:"Rare minerals hide deep underground."},
- {name:"Frozen Tundra",rock:"Frozen Core",emoji:"❄️",hp:7000,unlock:2000000,mult:30,desc:"Ancient minerals trapped in ice."},
- {name:"Neon Abyss",rock:"Neon Geode",emoji:"🔮",hp:20000,unlock:12000000,mult:65,desc:"An underground world full of glowing minerals."},
- {name:"Celestial Vault",rock:"Starstone",emoji:"☄️",hp:60000,unlock:80000000,mult:140,desc:"The rarest mining location."}
+const oreTypes=[
+ {name:"Stone",emoji:"🪨",value:3,color:0x858b96,weight:50},
+ {name:"Copper",emoji:"🟠",value:12,color:0xb87333,weight:25},
+ {name:"Iron",emoji:"⚙️",value:25,color:0x9ca7b5,weight:14},
+ {name:"Silver",emoji:"🥈",value:70,color:0xc9d7e8,weight:7},
+ {name:"Gold",emoji:"🥇",value:200,color:0xffc928,weight:3},
+ {name:"Diamond",emoji:"💎",value:900,color:0x38d9ff,weight:1}
 ];
 
-const ores = [
- {name:"Stone",value:2,weight:44,emoji:"🪨"},
- {name:"Copper",value:8,weight:27,emoji:"🟠"},
- {name:"Iron",value:18,weight:15,emoji:"⚙️"},
- {name:"Silver",value:55,weight:8,emoji:"🥈"},
- {name:"Gold",value:150,weight:4,emoji:"🥇"},
- {name:"Ruby",value:450,weight:1.3,emoji:"♦️"},
- {name:"Diamond",value:1200,weight:.55,emoji:"💎"},
- {name:"Ancient Crystal",value:5000,weight:.15,emoji:"🔮"}
+const upgradeData=[
+ {id:"pickaxe",name:"Stronger Pickaxe",desc:"More damage per mining hit.",base:100,step:1.7},
+ {id:"drill",name:"Auto Drill",desc:"Automatically mines nearby rocks.",base:350,step:2},
+ {id:"luck",name:"Lucky Charm",desc:"Improves your rare ore chances.",base:500,step:1.9},
+ {id:"backpack",name:"Bigger Backpack",desc:"Improves the money you earn from selling.",base:750,step:1.85}
 ];
 
-const equipment = [
- {id:"pickaxe",name:"Pickaxe",desc:"Increases the power of every click.",base:30,step:1.65,icon:"⛏"},
- {id:"drill",name:"Power Drill",desc:"Automatically mines every second.",base:100,step:1.8,icon:"🔩"},
- {id:"luck",name:"Lucky Charm",desc:"Improves your chance of finding rare ores.",base:180,step:1.9,icon:"🍀"},
- {id:"backpack",name:"Ore Backpack",desc:"Increases your ore selling bonus.",base:250,step:1.85,icon:"🎒"},
- {id:"scanner",name:"Ore Scanner",desc:"Improves your chance of discovering gems.",base:500,step:2,icon:"📡"},
- {id:"crusher",name:"Rock Crusher",desc:"Adds extra damage to every click.",base:900,step:2.05,icon:"⚙️"}
-];
+let state={
+ cash:0,gems:0,level:1,xp:0,ores:{},
+ upgrades:{pickaxe:0,drill:0,luck:0,backpack:0},
+ totalMined:0,totalEarned:0,drones:0
+};
 
-const droneTypes = [
- {id:"basic",name:"Basic Drone",cost:500,power:2,desc:"A small helper that mines automatically."},
- {id:"advanced",name:"Advanced Drone",cost:5000,power:15,desc:"A stronger automatic mining drone."},
- {id:"elite",name:"Elite Drone",cost:50000,power:100,desc:"A powerful mining machine."},
- {id:"quantum",name:"Quantum Drone",cost:500000,power:650,desc:"An extremely advanced mining drone."}
-];
-
-const skills = [
- {id:"strong",name:"Strong Arms",desc:"+10% click power per level.",max:10,cost:1},
- {id:"fortune",name:"Good Fortune",desc:"+2% rare ore chance per level.",max:10,cost:1},
- {id:"sales",name:"Smart Selling",desc:"+5% ore selling value per level.",max:10,cost:1},
- {id:"speed",name:"Fast Drilling",desc:"+1 automatic mining power per level.",max:10,cost:1},
- {id:"experience",name:"Quick Learner",desc:"+10% experience per level.",max:10,cost:1},
- {id:"gems",name:"Gem Hunter",desc:"+5% chance of bonus gems per level.",max:10,cost:1}
-];
-
-const craftRecipes = [
- {id:"steel",name:"Reinforced Pickaxe",desc:"+25% click power.",cost:{Iron:20,Copper:30},effect:"click"},
- {id:"lucky",name:"Lucky Mining Badge",desc:"+10% rare ore chance.",cost:{Silver:10,Gold:3},effect:"luck"},
- {id:"dronecore",name:"Drone Core",desc:"+15% drone power.",cost:{Iron:50,Diamond:1},effect:"drone"},
- {id:"golden",name:"Golden Backpack",desc:"+20% selling value.",cost:{Gold:10,Silver:20},effect:"sell"}
-];
-
-const quests = [
- {name:"Getting Started",desc:"Mine 25 rocks.",target:25,type:"mined",reward:250},
- {name:"Ore Collector",desc:"Collect 100 ores.",target:100,type:"ores",reward:600},
- {name:"First Fortune",desc:"Earn $2,500.",target:2500,type:"earned",reward:1000},
- {name:"Equipment Fan",desc:"Buy 5 upgrades.",target:5,type:"upgrades",reward:1500},
- {name:"Deep Explorer",desc:"Unlock 3 zones.",target:3,type:"zones",reward:5000},
- {name:"Drone Manager",desc:"Hire 3 drones.",target:3,type:"drones",reward:8000},
- {name:"Gem Collector",desc:"Discover 5 diamonds.",target:5,type:"diamonds",reward:15000}
-];
-
-const achievements = [
- {name:"First Click",desc:"Mine your first rock.",test:s=>s.totalMined>=1,reward:100},
- {name:"Hard Worker",desc:"Mine 100 rocks.",test:s=>s.totalMined>=100,reward:500},
- {name:"Rock Crusher",desc:"Mine 1,000 rocks.",test:s=>s.totalMined>=1000,reward:2500},
- {name:"Millionaire",desc:"Earn $1,000,000 total.",test:s=>s.totalEarned>=1000000,reward:10000},
- {name:"Explorer",desc:"Unlock every zone.",test:s=>s.unlockedZones.length>=zones.length,reward:50000},
- {name:"Drone Fleet",desc:"Own 10 drones.",test:s=>Object.values(s.drones).reduce((a,b)=>a+b,0)>=10,reward:20000},
- {name:"Gem Expert",desc:"Find 10 diamonds.",test:s=>(s.ores.Diamond||0)>=10,reward:15000},
- {name:"Reborn",desc:"Complete your first rebirth.",test:s=>s.rebirths>=1,reward:5000}
-];
-
-function freshState(){
- return {
-  cash:0,gems:0,level:1,xp:0,skillPoints:0,rebirths:0,
-  totalMined:0,totalEarned:0,totalSold:0,totalClicks:0,
-  totalUpgrades:0,totalChests:0,totalCrits:0,
-  ores:{},upgrades:{pickaxe:0,drill:0,luck:0,backpack:0,scanner:0,crusher:0},
-  drones:{basic:0,advanced:0,elite:0,quantum:0},
-  unlockedZones:[0],zone:0,skills:{},crafts:[],
-  completedQuests:[],completedAchievements:[],
-  questProgress:{},lastDaily:"",lastSeen:Date.now(),
-  sound:true,crateReady:true,event:null,eventEnd:0,
-  rockHP:zones[0].hp,rockMax:zones[0].hp,
-  boss:false,bossCount:0,combo:0,lastClick:0,
-  doubleUntil:0
+try{
+ const saved=JSON.parse(localStorage.getItem(SAVE_KEY)||"null");
+ if(saved)state={...state,...saved,
+  upgrades:{...state.upgrades,...saved.upgrades},
+  ores:{...saved.ores}
  };
-}
+}catch(e){}
 
-let state = freshState();
-let currentPage = "mine";
-let audioContext = null;
+const scene=new THREE.Scene();
+scene.background=new THREE.Color(0x9bc4e3);
+scene.fog=new THREE.Fog(0x9bc4e3,35,90);
 
-function loadGame(){
- try{
-  let raw=localStorage.getItem(SAVE_KEY);
-  if(!raw) raw=localStorage.getItem(OLD_SAVE_KEY);
-  if(raw){
-   const saved=JSON.parse(raw);
-   state={...freshState(),...saved};
-   state.upgrades={...freshState().upgrades,...(saved.upgrades||{})};
-   state.drones={...freshState().drones,...(saved.drones||{})};
-   state.ores=saved.ores||{};
-   state.skills=saved.skills||{};
-   state.crafts=saved.crafts||[];
-   state.unlockedZones=saved.unlockedZones||[0];
-   state.completedQuests=saved.completedQuests||[];
-   state.completedAchievements=saved.completedAchievements||[];
-   if(!Number.isFinite(state.rockHP)||state.rockHP<=0)state.rockHP=zones[state.zone||0].hp;
-   state.lastSeen=Number(saved.lastSeen)||Date.now();
-  }
- }catch(e){console.warn("Save could not be loaded",e)}
- const away=Math.min(28800,Math.max(0,(Date.now()-state.lastSeen)/1000));
- const gain=Math.floor(autoPower()*away*.35);
- if(gain>0){
-  addOre("Stone",gain);
-  toast("Welcome back! Your drones collected "+gain+" stone while you were away.");
- }
- state.lastSeen=Date.now();
-}
+const camera=new THREE.PerspectiveCamera(70,innerWidth/innerHeight,.1,150);
+const renderer=new THREE.WebGLRenderer({antialias:true});
+renderer.setSize(innerWidth,innerHeight);
+renderer.setPixelRatio(Math.min(devicePixelRatio,2));
+renderer.shadowMap.enabled=true;
+renderer.shadowMap.type=THREE.PCFSoftShadowMap;
+renderer.outputColorSpace=THREE.SRGBColorSpace;
+document.body.insertBefore(renderer.domElement,document.body.firstChild);
 
-function saveGame(){
- state.lastSeen=Date.now();
- try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}
- catch(e){toast("Unable to save. Your browser storage may be full.");}
-}
+scene.add(new THREE.HemisphereLight(0xffffff,0x59616c,2));
 
-function fmt(n){
- if(!Number.isFinite(n))return "0";
- if(n>=1e12)return (n/1e12).toFixed(2)+"T";
- if(n>=1e9)return (n/1e9).toFixed(2)+"B";
- if(n>=1e6)return (n/1e6).toFixed(2)+"M";
- if(n>=1e3)return (n/1e3).toFixed(1)+"K";
- return Math.floor(n).toLocaleString();
-}
+const sunlight=new THREE.DirectionalLight(0xffffff,2.2);
+sunlight.position.set(-15,25,10);
+sunlight.castShadow=true;
+scene.add(sunlight);
 
-function toast(message){
- const el=document.getElementById("toast");
- el.textContent=message;el.style.display="block";
- clearTimeout(toast.timer);
- toast.timer=setTimeout(()=>el.style.display="none",2300);
-}
+const ground=new THREE.Mesh(
+ new THREE.PlaneGeometry(130,130),
+ new THREE.MeshStandardMaterial({color:0x777d72,roughness:1})
+);
+ground.rotation.x=-Math.PI/2;
+ground.receiveShadow=true;
+scene.add(ground);
 
-function beep(freq=440,duration=.07){
- if(!state.sound)return;
- try{
-  audioContext=audioContext||new(window.AudioContext||window.webkitAudioContext)();
-  const osc=audioContext.createOscillator(),gain=audioContext.createGain();
-  osc.frequency.value=freq;osc.type="sine";
-  gain.gain.value=.045;osc.connect(gain);gain.connect(audioContext.destination);
-  osc.start();gain.gain.exponentialRampToValueAtTime(.001,audioContext.currentTime+duration);
-  osc.stop(audioContext.currentTime+duration);
- }catch(e){}
-}
+const grid=new THREE.GridHelper(130,65,0x697367,0x697367);
+grid.position.y=.02;scene.add(grid);
 
-function upgradeCost(item){
- return Math.floor(item.base*Math.pow(item.step,state.upgrades[item.id]||0));
+// Decorative mine walls
+function wall(x,z,w,d){
+ const m=new THREE.Mesh(
+  new THREE.BoxGeometry(w,5,d),
+  new THREE.MeshStandardMaterial({color:0x555a61})
+ );
+ m.position.set(x,2.5,z);m.castShadow=true;m.receiveShadow=true;scene.add(m);
 }
-function power(){
- let p=1+(state.upgrades.pickaxe||0)*2+(state.upgrades.crusher||0)*5;
- p*=1+(state.skills.strong||0)*.1;
- if(state.crafts.includes("steel"))p*=1.25;
- p*=1+state.rebirths*.15;
- if(Date.now()<state.doubleUntil)p*=2;
- return Math.max(1,Math.floor(p));
-}
-function autoPower(){
- let total=(state.upgrades.drill||0)*1;
- for(const d of droneTypes)total+=(state.drones[d.id]||0)*d.power;
- total+=state.upgrades.drill||0;
- total+=(state.skills.speed||0);
- if(state.crafts.includes("dronecore"))total*=1.15;
- return total*(1+state.rebirths*.1);
-}
-function oreMultiplier(){
- return (1+(state.upgrades.backpack||0)*.08)
- *(1+(state.skills.sales||0)*.05)
- *(state.crafts.includes("golden")?1.2:1)
- *(1+state.rebirths*.1);
-}
-function luck(){
- return (state.upgrades.luck||0)*.012
- +(state.upgrades.scanner||0)*.008
- +(state.skills.fortune||0)*.02
- +(state.crafts.includes("lucky")?.1:0);
-}
-function xpNeeded(){return Math.floor(50*Math.pow(state.level,1.45));}
-function addXP(amount){
- amount*=1+(state.skills.experience||0)*.1;
- state.xp+=Math.floor(amount);
- while(state.xp>=xpNeeded()){
-  state.xp-=xpNeeded();state.level++;state.skillPoints++;
-  state.cash+=state.level*100;
-  toast("LEVEL UP! Level "+state.level+"! +1 skill point.");
-  beep(700,.2);
- }
-}
-function addOre(name,amount){
- state.ores[name]=(state.ores[name]||0)+amount;
-}
-function oreValue(name){
- const o=ores.find(x=>x.name===name);
- return o?o.value:2;
-}
+wall(0,-28,60,2);wall(0,28,60,2);
+wall(-30,0,2,58);wall(30,0,2,58);
+
+// Player character
+const player=new THREE.Group();
+scene.add(player);
+
+const body=new THREE.Mesh(
+ new THREE.CapsuleGeometry(.48,.8,4,8),
+ new THREE.MeshStandardMaterial({color:0x2866a8})
+);
+body.position.y=1.15;body.castShadow=true;player.add(body);
+
+const head=new THREE.Mesh(
+ new THREE.SphereGeometry(.34,16,12),
+ new THREE.MeshStandardMaterial({color:0xe4b58e})
+);
+head.position.y=2.0;head.castShadow=true;player.add(head);
+
+const helmet=new THREE.Mesh(
+ new THREE.SphereGeometry(.38,16,10,0,Math.PI*2,0,Math.PI/2),
+ new THREE.MeshStandardMaterial({color:0xffa936,roughness:.5})
+);
+helmet.position.y=2.12;player.add(helmet);
+
+const pickaxe=new THREE.Group();
+const handle=new THREE.Mesh(new THREE.CylinderGeometry(.045,.045,.9,8),new THREE.MeshStandardMaterial({color:0x795333}));
+handle.rotation.z=-.5;pickaxe.add(handle);
+const axeHead=new THREE.Mesh(new THREE.BoxGeometry(.75,.12,.13),new THREE.MeshStandardMaterial({color:0xb8c4d1,metalness:.7}));
+axeHead.position.y=.35;pickaxe.add(axeHead);
+pickaxe.position.set(.48,1.25,.25);
+player.add(pickaxe);
+
+player.position.set(0,0,7);
+
+let yaw=0;
+let pitch=0;
+let velocityY=0;
+let grounded=true;
+let mouseDown=false;
+let lastTime=performance.now();
+
+const keys={};
+const mobileMove={forward:false,back:false,left:false,right:false};
+
+const rocks=[];
+const rockMaterial=new THREE.MeshStandardMaterial({color:0x858b96,roughness:.9});
+const rockGeometry=new THREE.IcosahedronGeometry(1,1);
+
 function randomOre(){
- const zone=zones[state.zone];
- const adjusted=ores.map(o=>{
-  let weight=o.weight;
-  const minIndex=ores.indexOf(o);
-  if(minIndex>0)weight*=Math.min(2,1+state.zone*.12);
-  if(minIndex>=5)weight*=1+luck();
-  return {...o,weight};
- });
- let total=adjusted.reduce((a,o)=>a+o.weight,0);
+ let total=oreTypes.reduce((sum,o)=>sum+o.weight,0);
  let roll=Math.random()*total;
- for(const o of adjusted){roll-=o.weight;if(roll<=0)return o;}
- return ores[0];
-}
-function resetRock(){
- const z=zones[state.zone];
- state.rockMax=z.hp*(state.boss?8:1);
- state.rockHP=state.rockMax;
-}
-function mine(amount=power()){
- if(state.rockHP<=0)resetRock();
- state.totalClicks++;
- const now=Date.now();
- state.combo=now-state.lastClick<1200?state.combo+1:1;
- state.lastClick=now;
- let damage=amount;
- let critical=Math.random()<(.05+(state.upgrades.luck||0)*.005);
- if(critical){damage*=3;state.totalCrits++;toast("💥 CRITICAL HIT!");}
- if(state.event==="DOUBLE DAMAGE")damage*=2;
- state.rockHP-=damage;
- state.totalMined++;
- addXP(2+state.zone);
- if(state.rockHP<=0){
-  const drops=state.boss?5:1+Math.floor(Math.random()*2);
-  for(let i=0;i<drops;i++){
-   const o=randomOre();addOre(o.name,1);
-   if(o.name==="Diamond")addXP(20);
-  }
-  const bonus=Math.floor((5+state.zone*4)*zones[state.zone].mult);
-  state.cash+=bonus;state.totalEarned+=bonus;
-  if(Math.random()<.035+luck()*.1){state.gems++;toast("💎 You found a bonus gem!");}
-  if(state.boss){
-   state.boss=false;state.bossCount++;state.cash+=zones[state.zone].mult*500;
-   toast("🏆 BOSS ROCK DEFEATED! Huge reward!");
-  }
-  if(Math.random()<.08){state.crateReady=true;}
-  resetRock();
-  if(Math.random()<.018){startEvent();}
- }else{
-  if(Math.random()<.02)toast("You discovered a mineral fragment!");
+ let bonus=state.upgrades.luck*.018;
+ for(const ore of oreTypes){
+  roll-=ore.weight*(ore.value>100?1+bonus:1);
+  if(roll<=0)return ore;
  }
- checkQuests();checkAchievements();beep(critical?800:350,.04);
- render();
+ return oreTypes[0];
 }
-function sellAll(){
- let total=0,count=0;
- for(const [name,amount] of Object.entries(state.ores)){
-  total+=amount*oreValue(name);count+=amount;
+
+function makeRock(x,z,index){
+ const ore=randomOre();
+ const size=1.0+Math.random()*.55;
+ const mesh=new THREE.Mesh(
+  rockGeometry,
+  new THREE.MeshStandardMaterial({
+   color:ore.color,
+   roughness:.55,
+   metalness:ore.name==="Gold"||ore.name==="Diamond"?.5:.1,
+   emissive:ore.name==="Diamond"?0x063e55:0x000000,
+   emissiveIntensity:.5
+  })
+ );
+ mesh.scale.set(size,size*.8,size);
+ mesh.position.set(x,size*.65,z);
+ mesh.rotation.set(Math.random(),Math.random(),Math.random());
+ mesh.castShadow=true;mesh.receiveShadow=true;
+ scene.add(mesh);
+
+ const rock={
+  mesh,ore,hp:40+index*3,maxHP:40+index*3,
+  position:new THREE.Vector3(x,0,z),active:true
+ };
+ rocks.push(rock);
+ return rock;
+}
+
+for(let i=0;i<30;i++){
+ let x=(Math.random()-.5)*45;
+ let z=(Math.random()-.5)*45;
+ if(Math.hypot(x,z-7)<8){i--;continue;}
+ makeRock(x,z,i);
+}
+
+// Sell station
+const station=new THREE.Group();
+scene.add(station);
+station.position.set(0,0,-4);
+
+const stationBase=new THREE.Mesh(
+ new THREE.BoxGeometry(4,1.2,3),
+ new THREE.MeshStandardMaterial({color:0xd38b27})
+);
+stationBase.position.y=.6;stationBase.castShadow=true;station.add(stationBase);
+
+const stationTop=new THREE.Mesh(
+ new THREE.BoxGeometry(3.2,.25,2.2),
+ new THREE.MeshStandardMaterial({color:0xffd36b,emissive:0x49300a})
+);
+stationTop.position.y=1.35;station.add(stationTop);
+
+const stationSign=new THREE.Mesh(
+ new THREE.BoxGeometry(2.4,1.1,.15),
+ new THREE.MeshStandardMaterial({color:0x26394d})
+);
+stationSign.position.set(0,2.5,-1.2);station.add(stationSign);
+
+const stationLight=new THREE.PointLight(0xffc34c,2,9);
+stationLight.position.set(0,3,0);station.add(stationLight);
+
+// Shop building
+const shopBuilding=new THREE.Group();
+shopBuilding.position.set(8,0,-7);scene.add(shopBuilding);
+const shopBox=new THREE.Mesh(new THREE.BoxGeometry(4,3,4),new THREE.MeshStandardMaterial({color:0x384b60}));
+shopBox.position.y=1.5;shopBox.castShadow=true;shopBuilding.add(shopBox);
+const shopRoof=new THREE.Mesh(new THREE.ConeGeometry(3.2,1.6,4),new THREE.MeshStandardMaterial({color:0xffa936}));
+shopRoof.position.y=3.8;shopRoof.rotation.y=Math.PI/4;shopBuilding.add(shopRoof);
+
+function addTree(x,z){
+ const trunk=new THREE.Mesh(new THREE.CylinderGeometry(.15,.2,1.6,7),new THREE.MeshStandardMaterial({color:0x65452f}));
+ trunk.position.set(x,.8,z);scene.add(trunk);
+ const leaves=new THREE.Mesh(new THREE.ConeGeometry(1.2,3,7),new THREE.MeshStandardMaterial({color:0x385d3d}));
+ leaves.position.set(x,2.8,z);leaves.castShadow=true;scene.add(leaves);
+}
+for(let i=0;i<22;i++){
+ let x=(Math.random()-.5)*58,z=(Math.random()-.5)*58;
+ if(Math.hypot(x,z)<13)continue;
+ addTree(x,z);
+}
+
+function showToast(msg){
+ const el=document.getElementById("toast");
+ el.textContent=msg;el.style.display="block";
+ clearTimeout(showToast.timer);
+ showToast.timer=setTimeout(()=>el.style.display="none",2200);
+}
+
+function save(){
+ try{localStorage.setItem(SAVE_KEY,JSON.stringify(state));}catch(e){}
+}
+
+function power(){
+ return 1+(state.upgrades.pickaxe||0)*3;
+}
+
+function nearestRock(){
+ let best=null,bestDistance=Infinity;
+ for(const r of rocks){
+  if(!r.active)continue;
+  const d=player.position.distanceTo(r.position);
+  if(d<bestDistance){bestDistance=d;best=r;}
  }
- if(count===0){toast("You don't have any ore to sell!");return;}
- const earned=Math.floor(total*oreMultiplier());
- state.cash+=earned;state.totalEarned+=earned;state.totalSold+=count;
- state.ores={};addXP(Math.max(1,Math.floor(earned/100)));
- toast("Sold "+fmt(count)+" ores for $"+fmt(earned)+"!");
- checkQuests();render();
+ return bestDistance<5?best:null;
 }
-function startEvent(){
- const events=["DOUBLE DAMAGE","ORE RUSH","GEM RUSH"];
- state.event=events[Math.floor(Math.random()*events.length)];
- state.eventEnd=Date.now()+30000;
- toast("⚡ RANDOM EVENT: "+state.event+" for 30 seconds!");
- render();
+
+function addXP(amount){
+ state.xp+=amount;
+ while(state.xp>=Math.floor(50*Math.pow(state.level,1.4))){
+  state.xp-=Math.floor(50*Math.pow(state.level,1.4));
+  state.level++;
+  state.cash+=state.level*100;
+  showToast("⭐ LEVEL UP! You reached level "+state.level);
+ }
 }
+
+function mine(){
+ const rock=nearestRock();
+ if(!rock){
+  showToast("Get closer to a rock to mine it!");
+  return;
+ }
+ rock.hp-=power();
+ pickaxe.rotation.z=-.8;
+ setTimeout(()=>pickaxe.rotation.z=0,100);
+
+ if(rock.hp<=0){
+  const ore=rock.ore;
+  state.ores[ore.name]=(state.ores[ore.name]||0)+1;
+  state.totalMined++;
+  addXP(8);
+  showToast(ore.emoji+" Found "+ore.name+"!");
+  rock.active=false;
+  scene.remove(rock.mesh);
+
+  setTimeout(()=>{
+   const angle=Math.random()*Math.PI*2;
+   const distance=9+Math.random()*17;
+   makeRock(Math.cos(angle)*distance,Math.sin(angle)*distance,rocks.length);
+  },3500);
+ }
+ updateUI();
+}
+
+function sell(){
+ const distance=player.position.distanceTo(station.position);
+ if(distance>6){
+  showToast("Go to the yellow sell station first!");
+  return;
+ }
+ let amount=0,earned=0;
+ for(const ore of oreTypes){
+  const count=state.ores[ore.name]||0;
+  amount+=count;
+  earned+=count*ore.value;
+ }
+ if(amount===0){showToast("Your backpack is empty!");return;}
+ earned=Math.floor(earned*(1+state.upgrades.backpack*.12));
+ state.cash+=earned;state.totalEarned+=earned;
+ state.ores={};
+ addXP(Math.max(1,Math.floor(earned/80)));
+ showToast("💵 Sold "+amount+" ores for $"+earned.toLocaleString()+"!");
+ updateUI();
+}
+
 function buyUpgrade(id){
- const item=equipment.find(x=>x.id===id);
- const cost=upgradeCost(item);
- if(state.cash<cost){toast("Not enough cash!");return;}
- state.cash-=cost;state.upgrades[id]++;state.totalUpgrades++;
- toast("Upgraded "+item.name+"!");
- beep(600);checkQuests();render();
+ const item=upgradeData.find(x=>x.id===id);
+ const level=state.upgrades[id]||0;
+ const cost=Math.floor(item.base*Math.pow(item.step,level));
+ if(state.cash<cost){showToast("Not enough cash!");return;}
+ state.cash-=cost;
+ state.upgrades[id]++;
+ updateUI();renderShop();save();
+ showToast("Upgraded "+item.name+"!");
 }
-function buyDrone(id){
- const d=droneTypes.find(x=>x.id===id);
- const cost=Math.floor(d.cost*Math.pow(2.1,state.drones[id]||0));
- if(state.cash<cost){toast("Not enough cash!");return;}
- state.cash-=cost;state.drones[id]++;toast(d.name+" hired!");
- checkQuests();render();
+
+function renderShop(){
+ document.getElementById("shopItems").innerHTML=upgradeData.map(item=>{
+  const level=state.upgrades[item.id]||0;
+  const cost=Math.floor(item.base*Math.pow(item.step,level));
+  return `<div class="shopitem">
+   <b>${item.name} — Level ${level}</b>
+   <p>${item.desc}</p>
+   <b style="color:#ffd36b">$${cost.toLocaleString()}</b>
+   <button class="primary" style="float:right" data-buy="${item.id}">BUY</button>
+   <div style="clear:both"></div>
+  </div>`;
+ }).join("");
 }
-function unlockZone(index){
- const z=zones[index];
- if(state.unlockedZones.includes(index)){state.zone=index;state.boss=false;resetRock();render();return;}
- if(state.cash<z.unlock){toast("You need $"+fmt(z.unlock)+" to unlock this zone.");return;}
- state.cash-=z.unlock;state.unlockedZones.push(index);state.zone=index;
- state.boss=false;resetRock();toast("New zone unlocked: "+z.name+"!");
- checkQuests();render();
+
+function renderInventory(){
+ document.getElementById("inventoryItems").innerHTML=oreTypes.map(o=>{
+  const count=state.ores[o.name]||0;
+  return `<div class="oreline"><span>${o.emoji} ${o.name}</span><b>${count}</b><span>$${(count*o.value).toLocaleString()}</span></div>`;
+ }).join("");
 }
-function openChest(){
- if(!state.crateReady){toast("Find another chest by mining!");return;}
- state.crateReady=false;state.totalChests++;
- const rewards=[
-  ()=>{const v=500+state.zone*500;state.cash+=v;return "$"+fmt(v)+" cash";},
-  ()=>{state.gems+=3;return "3 gems";},
-  ()=>{state.doubleUntil=Date.now()+60000;return "60 seconds of double mining power";},
-  ()=>{const o=randomOre();addOre(o.name,5);return "5 "+o.name;},
-  ()=>{state.cash+=5000;state.gems++;return "$5,000 and 1 gem";}
- ];
- const reward=rewards[Math.floor(Math.random()*rewards.length)]();
- toast("🎁 Chest reward: "+reward+"!");
- render();
-}
-function craft(id){
- const recipe=craftRecipes.find(x=>x.id===id);
- if(state.crafts.includes(id)){toast("You already crafted this item.");return;}
- for(const [name,amount] of Object.entries(recipe.cost)){
-  if((state.ores[name]||0)<amount){toast("You need "+amount+" "+name+".");return;}
- }
- for(const [name,amount] of Object.entries(recipe.cost))state.ores[name]-=amount;
- state.crafts.push(id);toast("Crafted "+recipe.name+"!");
- render();
-}
-function buySkill(id){
- const skill=skills.find(x=>x.id===id);
- const current=state.skills[id]||0;
- if(current>=skill.max){toast("Skill is already maxed.");return;}
- if(state.skillPoints<skill.cost){toast("You need more skill points.");return;}
- state.skillPoints-=skill.cost;state.skills[id]=current+1;
- toast(skill.name+" upgraded!");render();
-}
-function checkQuests(){
- for(const q of quests){
-  if(state.completedQuests.includes(q.name))continue;
-  let progress=0;
-  if(q.type==="mined")progress=state.totalMined;
-  if(q.type==="ores")progress=Object.values(state.ores).reduce((a,b)=>a+b,0)+state.totalSold;
-  if(q.type==="earned")progress=state.totalEarned;
-  if(q.type==="upgrades")progress=state.totalUpgrades;
-  if(q.type==="zones")progress=state.unlockedZones.length;
-  if(q.type==="drones")progress=Object.values(state.drones).reduce((a,b)=>a+b,0);
-  if(q.type==="diamonds")progress=state.ores.Diamond||0;
-  state.questProgress[q.name]=progress;
-  if(progress>=q.target){
-   state.completedQuests.push(q.name);state.cash+=q.reward;
-   toast("📜 Mission completed: "+q.name+"! +$"+fmt(q.reward));
-  }
- }
-}
-function checkAchievements(){
- for(const a of achievements){
-  if(state.completedAchievements.includes(a.name)||!a.test(state))continue;
-  state.completedAchievements.push(a.name);state.cash+=a.reward;
-  toast("🏆 Achievement: "+a.name+"! +$"+fmt(a.reward));
- }
-}
-function claimDaily(){
- const today=new Date().toDateString();
- if(state.lastDaily===today){toast("You already claimed today's reward.");return;}
- state.lastDaily=today;
- const reward=500+state.level*150;
- state.cash+=reward;state.gems+=1;
- toast("Daily reward: $"+fmt(reward)+" and 1 gem!");
- render();
-}
-function rebirth(){
- const requirement=1000000*Math.pow(5,state.rebirths);
- if(state.totalEarned<requirement){toast("You need to earn $"+fmt(requirement)+" in total before rebirthing.");return;}
- if(!confirm("Rebirth now? Your cash, equipment, ores, and zone unlocks will reset. You will keep permanent gems and bonuses."))return;
- state.rebirths++;state.gems+=10+state.rebirths*5;
- state.cash=0;state.ores={};state.upgrades=freshState().upgrades;
- state.drones=freshState().drones;state.zone=0;state.unlockedZones=[0];
- state.crafts=[];state.skills={};state.skillPoints=0;
- state.level=1;state.xp=0;state.totalUpgrades=0;
- state.completedQuests=[];state.questProgress={};
- state.boss=false;resetRock();
- toast("♻️ Rebirth complete! Permanent bonuses increased!");
- render();
-}
-function render(){
- document.getElementById("cash").textContent="$"+fmt(state.cash);
- document.getElementById("oreCount").textContent=fmt(Object.values(state.ores).reduce((a,b)=>a+b,0));
+
+function updateUI(){
+ document.getElementById("cash").textContent="$"+Math.floor(state.cash).toLocaleString();
+ document.getElementById("oreCount").textContent=Object.values(state.ores).reduce((a,b)=>a+b,0);
  document.getElementById("level").textContent=state.level;
  document.getElementById("gems").textContent=state.gems;
- document.getElementById("rebirths").textContent=state.rebirths;
+ document.getElementById("power").textContent=power();
+ document.getElementById("droneCount").textContent=state.upgrades.drill||0;
+ const need=Math.floor(50*Math.pow(state.level,1.4));
+ document.getElementById("xp").textContent=state.xp+" / "+need;
+ document.getElementById("xpBar").style.width=Math.min(100,state.xp/need*100)+"%";
 
- const z=zones[state.zone];
- document.getElementById("zoneName").textContent=z.name.toUpperCase();
- document.getElementById("rockName").textContent=state.boss?"👑 BOSS: "+z.rock:z.rock;
- document.getElementById("rockDescription").textContent=state.boss?"A powerful rock with bonus rewards!":z.desc;
- document.getElementById("rockEmoji").textContent=state.boss?"👹":z.emoji;
- document.getElementById("rockButton").className="rock "+(state.boss?"boss":state.zone===2?"crystal":state.zone===3?"gold":"");
- document.getElementById("rockHealthText").textContent=fmt(Math.max(0,state.rockHP))+" / "+fmt(state.rockMax)+" HP";
- document.getElementById("rockHealth").style.width=Math.max(0,state.rockHP/state.rockMax*100)+"%";
- document.getElementById("miningPower").textContent="Mining power: "+fmt(power());
- document.getElementById("powerStat").textContent=fmt(power());
- document.getElementById("critStat").textContent=(5+(state.upgrades.luck||0)*.5).toFixed(1)+"%";
- document.getElementById("multStat").textContent=oreMultiplier().toFixed(2)+"x";
- document.getElementById("autoStat").textContent=fmt(autoPower())+"/sec";
- document.getElementById("xpText").textContent=fmt(state.xp)+" / "+fmt(xpNeeded());
- document.getElementById("xpBar").style.width=Math.min(100,state.xp/xpNeeded()*100)+"%";
- document.getElementById("skillPoints").textContent=state.skillPoints;
- document.getElementById("chestButton").textContent=state.crateReady?"🎁 Open Chest":"🎁 No Chest";
- document.getElementById("chestButton").disabled=!state.crateReady;
+ const rock=nearestRock();
+ if(rock){
+  document.getElementById("targetName").textContent=rock.ore.name+" Rock";
+  document.getElementById("targetHealth").textContent=Math.max(0,rock.hp)+" / "+rock.maxHP+" HP";
+  document.getElementById("targetBar").style.width=Math.max(0,rock.hp/rock.maxHP*100)+"%";
+  document.getElementById("message").textContent="Rock nearby! Press F or MINE.";
+ }else{
+  document.getElementById("targetName").textContent="No nearby rock";
+  document.getElementById("targetHealth").textContent="Walk closer to a rock.";
+  document.getElementById("targetBar").style.width="0%";
+  document.getElementById("message").textContent="Explore the mine and find a rock!";
+ }
 
- document.getElementById("eventBanner").innerHTML=state.event&&Date.now()<state.eventEnd
-  ?'<div class="notice">⚡ ACTIVE EVENT: '+state.event+' — '+Math.ceil((state.eventEnd-Date.now())/1000)+' seconds left!</div>':"";
- document.getElementById("quickMissions").innerHTML=quests.slice(0,3).map(q=>{
-  const p=state.questProgress[q.name]||0;
-  return '<div class="statline"><span>'+q.name+'</span><b>'+Math.min(p,q.target)+'/'+q.target+'</b></div>';
- }).join("");
- document.getElementById("droneSummary").textContent=droneTypes.filter(d=>state.drones[d.id]>0).map(d=>d.name+" x"+state.drones[d.id]).join(" • ")||"No drones hired yet.";
-
- document.getElementById("shopItems").innerHTML=equipment.map(item=>{
-  const level=state.upgrades[item.id]||0,cost=upgradeCost(item);
-  return '<div class="item"><h3>'+item.icon+' '+item.name+' — Lv.'+level+'</h3><p>'+item.desc+'</p><div class="price">$'+fmt(cost)+'</div><button class="primary" data-upgrade="'+item.id+'">UPGRADE</button></div>';
- }).join("");
- document.getElementById("droneShop").innerHTML=droneTypes.map(d=>{
-  const count=state.drones[d.id]||0,cost=Math.floor(d.cost*Math.pow(2.1,count));
-  return '<div class="item"><h3>🤖 '+d.name+' x'+count+'</h3><p>'+d.desc+' Power: '+d.power+'/sec each.</p><div class="price">$'+fmt(cost)+'</div><button class="primary" data-drone="'+d.id+'">HIRE DRONE</button></div>';
- }).join("");
-
- document.getElementById("zoneItems").innerHTML=zones.map((zone,i)=>{
-  const unlocked=state.unlockedZones.includes(i);
-  return '<div class="item"><h3>'+zone.emoji+' '+zone.name+'</h3><p>'+zone.desc+'<br>Rock HP: '+fmt(zone.hp)+' • Value multiplier: '+zone.mult+'x</p><div class="price">'+(unlocked?"UNLOCKED":("$"+fmt(zone.unlock)))+'</div><button class="'+(unlocked?"secondary":"primary")+'" data-zone="'+i+'">'+(state.zone===i?"CURRENT ZONE":unlocked?"TRAVEL HERE":"UNLOCK ZONE")+'</button></div>';
- }).join("");
-
- document.getElementById("inventoryList").innerHTML=ores.map(o=>{
-  const amount=state.ores[o.name]||0;
-  return '<div class="ore-row"><span>'+o.emoji+' '+o.name+'</span><b>'+fmt(amount)+'</b><span>$'+fmt(amount*o.value)+'</span></div>';
- }).join("");
- document.getElementById("equipmentList").innerHTML=equipment.map(e=>'<div class="ore-row"><span>'+e.icon+' '+e.name+'</span><b>Level '+(state.upgrades[e.id]||0)+'</b></div>').join("");
-
- document.getElementById("craftItems").innerHTML=craftRecipes.map(r=>{
-  const owned=state.crafts.includes(r.id);
-  const materials=Object.entries(r.cost).map(([n,a])=>a+" "+n).join(" + ");
-  return '<div class="item"><h3>⚒ '+r.name+'</h3><p>'+r.desc+'</p><div class="price">'+materials+'</div><button class="'+(owned?"secondary":"primary")+'" data-craft="'+r.id+'" '+(owned?"disabled":"")+'>'+(owned?"CRAFTED":"CRAFT ITEM")+'</button></div>';
- }).join("");
-
- document.getElementById("skillItems").innerHTML=skills.map(s=>{
-  const lv=state.skills[s.id]||0;
-  return '<div class="item"><h3>✨ '+s.name+' — '+lv+'/'+s.max+'</h3><p>'+s.desc+'</p><button class="primary" data-skill="'+s.id+'" '+(lv>=s.max?"disabled":"")+'>UPGRADE SKILL (1 POINT)</button></div>';
- }).join("");
-
- document.getElementById("questList").innerHTML=quests.map(q=>{
-  const p=state.questProgress[q.name]||0,done=state.completedQuests.includes(q.name);
-  return '<div class="item" style="margin-bottom:10px"><h3>'+(done?"✅ ":"📜 ")+q.name+'</h3><p>'+q.desc+'</p><div class="statline"><span>Progress</span><b>'+Math.min(p,q.target)+'/'+q.target+'</b></div><div class="progress"><div style="width:'+Math.min(100,p/q.target*100)+'%"></div></div><p>Reward: $'+fmt(q.reward)+'</p></div>';
- }).join("");
- document.getElementById("achievementList").innerHTML=achievements.map(a=>{
-  const done=state.completedAchievements.includes(a.name);
-  return '<div class="ore-row"><span>'+(done?"🏆":"🔒")+' '+a.name+' — '+a.desc+'</span><b>'+(done?"DONE":"$"+fmt(a.reward))+'</b></div>';
- }).join("");
-
- const today=new Date().toDateString(),claimed=state.lastDaily===today;
- document.getElementById("dailyText").textContent=claimed?"You have already claimed today's reward. Come back tomorrow!":"Claim your daily cash reward and 1 gem.";
- document.getElementById("dailyButton").disabled=claimed;
- document.getElementById("statsList").innerHTML=[
-  ["Total rocks mined",fmt(state.totalMined)],["Total clicks",fmt(state.totalClicks)],
-  ["Total cash earned","$"+fmt(state.totalEarned)],["Total ore sold",fmt(state.totalSold)],
-  ["Total upgrades bought",fmt(state.totalUpgrades)],["Critical hits",fmt(state.totalCrits)],
-  ["Chests opened",fmt(state.totalChests)],["Boss rocks defeated",fmt(state.bossCount)],
-  ["Zones unlocked",state.unlockedZones.length+"/"+zones.length],["Drones owned",Object.values(state.drones).reduce((a,b)=>a+b,0)]
- ].map(([a,b])=>'<div class="statline"><span>'+a+'</span><b>'+b+'</b></div>').join("");
-
- const req=1000000*Math.pow(5,state.rebirths);
- document.getElementById("rebirthInfo").innerHTML='<p>Total cash earned: <b>$'+fmt(state.totalEarned)+'</b></p><p>Required lifetime earnings: <b>$'+fmt(req)+'</b></p><p>Current rebirths: <b>'+state.rebirths+'</b></p><p>Next rebirth gives permanent gems and stronger bonuses.</p>';
- document.getElementById("rebirthButton").disabled=state.totalEarned<req;
- document.getElementById("soundButton").textContent=state.sound?"🔊 Sound: ON":"🔇 Sound: OFF";
+ const stationDistance=player.position.distanceTo(station.position);
+ document.getElementById("stationStatus").textContent=stationDistance<6?"READY TO SELL!":"Find the yellow building";
+ document.getElementById("objective").textContent=state.totalMined<10?
+  "Mine "+(10-state.totalMined)+" more rocks!":"Keep exploring and upgrading!";
 }
 
-document.getElementById("tabs").addEventListener("click",e=>{
- const btn=e.target.closest("[data-page]");if(!btn)return;
- currentPage=btn.dataset.page;
- document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active",b===btn));
- document.querySelectorAll(".page").forEach(p=>p.classList.toggle("active",p.id===currentPage));
- render();
-});
-document.getElementById("rockButton").addEventListener("click",()=>mine());
-document.getElementById("sellButton").addEventListener("click",sellAll);
-document.getElementById("sellButton2").addEventListener("click",sellAll);
-document.getElementById("chestButton").addEventListener("click",openChest);
-document.getElementById("dailyButton").addEventListener("click",claimDaily);
-document.getElementById("rebirthButton").addEventListener("click",rebirth);
-document.getElementById("saveButton").addEventListener("click",()=>{saveGame();toast("Game saved!");});
-document.getElementById("soundButton").addEventListener("click",()=>{state.sound=!state.sound;render();});
-document.getElementById("resetButton").addEventListener("click",()=>{
- if(confirm("Are you sure you want to reset ALL your progress? This cannot be undone.")){
-  localStorage.removeItem(SAVE_KEY);localStorage.removeItem(OLD_SAVE_KEY);
-  state=freshState();resetRock();render();toast("Game reset.");
- }
-});
-
+function openPanel(id){
+ document.getElementById("shop").style.display="none";
+ document.getElementById("inventory").style.display="none";
+ document.getElementById(id).style.display="block";
+}
+document.getElementById("shopButton").onclick=()=>{renderShop();openPanel("shop");};
+document.getElementById("inventoryButton").onclick=()=>{renderInventory();openPanel("inventory");};
+document.getElementById("closeShop").onclick=()=>document.getElementById("shop").style.display="none";
+document.getElementById("closeInventory").onclick=()=>document.getElementById("inventory").style.display="none";
+document.getElementById("mineButton").onclick=mine;
+document.getElementById("mobileMine").onclick=mine;
+document.getElementById("mobileSell").onclick=sell;
 document.body.addEventListener("click",e=>{
- const up=e.target.closest("[data-upgrade]");
- if(up)buyUpgrade(up.dataset.upgrade);
- const dr=e.target.closest("[data-drone]");
- if(dr)buyDrone(dr.dataset.drone);
- const zn=e.target.closest("[data-zone]");
- if(zn)unlockZone(Number(zn.dataset.zone));
- const cr=e.target.closest("[data-craft]");
- if(cr)craft(cr.dataset.craft);
- const sk=e.target.closest("[data-skill]");
- if(sk)buySkill(sk.dataset.skill);
+ const b=e.target.closest("[data-buy]");
+ if(b)buyUpgrade(b.dataset.buy);
 });
 
-function gameLoop(){
- const now=Date.now();
- if(state.event&&now>=state.eventEnd){state.event=null;render();}
- const auto=autoPower();
- if(auto>0&&Math.random()<.8){
-  const damage=Math.max(1,auto/5);
-  state.rockHP-=damage;
-  if(state.rockHP<=0){
-   const o=randomOre();addOre(o.name,1);
-   const reward=5*zones[state.zone].mult;
-   state.cash+=reward;state.totalEarned+=reward;
-   state.totalMined++;addXP(1);
-   if(Math.random()<.025)state.gems++;
-   resetRock();checkQuests();checkAchievements();
+document.addEventListener("keydown",e=>{
+ keys[e.code]=true;
+ if(e.code==="KeyF")mine();
+ if(e.code==="KeyE")sell();
+ if(e.code==="Space"&&grounded){velocityY=7;grounded=false;}
+});
+document.addEventListener("keyup",e=>keys[e.code]=false);
+
+document.getElementById("mobileJump").onclick=()=>{
+ if(grounded){velocityY=7;grounded=false;}
+};
+
+document.querySelectorAll("[data-move]").forEach(btn=>{
+ const direction=btn.dataset.move;
+ btn.addEventListener("pointerdown",e=>{e.preventDefault();mobileMove[direction]=true;});
+ btn.addEventListener("pointerup",()=>mobileMove[direction]=false);
+ btn.addEventListener("pointerleave",()=>mobileMove[direction]=false);
+ btn.addEventListener("pointercancel",()=>mobileMove[direction]=false);
+});
+
+let dragging=false,lastX=0,lastY=0;
+renderer.domElement.addEventListener("pointerdown",e=>{
+ if(e.pointerType==="mouse"&&e.button!==0)return;
+ dragging=true;lastX=e.clientX;lastY=e.clientY;
+ renderer.domElement.setPointerCapture(e.pointerId);
+});
+renderer.domElement.addEventListener("pointermove",e=>{
+ if(!dragging)return;
+ const dx=e.clientX-lastX,dy=e.clientY-lastY;
+ yaw-=dx*.006;
+ pitch=Math.max(-.2,Math.min(.6,pitch+dy*.003));
+ lastX=e.clientX;lastY=e.clientY;
+});
+renderer.domElement.addEventListener("pointerup",()=>dragging=false);
+renderer.domElement.addEventListener("pointercancel",()=>dragging=false);
+
+function updatePlayer(dt){
+ let forward=0,side=0;
+ if(keys.KeyW||keys.ArrowUp||mobileMove.forward)forward+=1;
+ if(keys.KeyS||keys.ArrowDown||mobileMove.back)forward-=1;
+ if(keys.KeyA||keys.ArrowLeft||mobileMove.left)side-=1;
+ if(keys.KeyD||keys.ArrowRight||mobileMove.right)side+=1;
+
+ const moving=forward!==0||side!==0;
+ if(moving){
+  const length=Math.hypot(forward,side);
+  forward/=length;side/=length;
+  const sin=Math.sin(yaw),cos=Math.cos(yaw);
+  const speed=8;
+  player.position.x+=(side*cos+forward*sin)*speed*dt;
+  player.position.z+=(side*sin-forward*cos)*speed*dt;
+  player.rotation.y=Math.atan2(side,forward)+yaw;
+ }
+
+ player.position.x=THREE.MathUtils.clamp(player.position.x,-26,26);
+ player.position.z=THREE.MathUtils.clamp(player.position.z,-26,26);
+
+ velocityY-=18*dt;
+ player.position.y+=velocityY*dt;
+ if(player.position.y<=0){player.position.y=0;velocityY=0;grounded=true;}
+
+ const distance=6.5;
+ const target=new THREE.Vector3(
+  player.position.x+Math.sin(yaw)*distance,
+  player.position.y+3.2+pitch*3,
+  player.position.z-Math.cos(yaw)*distance
+ );
+ camera.position.lerp(target,1-Math.pow(.001,dt));
+ const lookAt=new THREE.Vector3(player.position.x,player.position.y+1.2,player.position.z);
+ camera.lookAt(lookAt);
+}
+
+let autoTimer=0;
+function animate(now){
+ requestAnimationFrame(animate);
+ const dt=Math.min(.04,(now-lastTime)/1000);
+ lastTime=now;
+
+ updatePlayer(dt);
+
+ autoTimer+=dt;
+ if(autoTimer>=1){
+  autoTimer=0;
+  if(state.upgrades.drill>0){
+   const rock=nearestRock();
+   if(rock){
+    rock.hp-=state.upgrades.drill;
+    if(rock.hp<=0){
+     state.ores[rock.ore.name]=(state.ores[rock.ore.name]||0)+1;
+     state.totalMined++;addXP(5);
+     rock.active=false;scene.remove(rock.mesh);
+     setTimeout(()=>{
+      const angle=Math.random()*Math.PI*2;
+      const distance=9+Math.random()*17;
+      makeRock(Math.cos(angle)*distance,Math.sin(angle)*distance,rocks.length);
+     },3500);
+    }
+   }
   }
+  updateUI();
  }
- if(Math.random()<.03)render();
+ renderer.render(scene,camera);
 }
-loadGame();
-resetRockIfNeeded();
-render();
-function resetRockIfNeeded(){
- if(!state.rockMax||!Number.isFinite(state.rockMax)){
-  state.rockMax=zones[state.zone].hp;state.rockHP=state.rockMax;
- }
-}
-setInterval(gameLoop,1000);
-setInterval(()=>{saveGame();render();},10000);
-window.addEventListener("beforeunload",saveGame);
+
+window.addEventListener("resize",()=>{
+ camera.aspect=innerWidth/innerHeight;
+ camera.updateProjectionMatrix();
+ renderer.setSize(innerWidth,innerHeight);
+});
+
+updateUI();
+renderShop();
+renderInventory();
+setInterval(()=>{save();},5000);
+window.addEventListener("beforeunload",save);
+requestAnimationFrame(animate);
 </script>
 </body>
 </html>
